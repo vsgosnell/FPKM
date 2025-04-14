@@ -85,3 +85,4 @@ plot_expression_heatmap <- function(fpkm_data, top_n = 10) {
   top_genes <- get_top_expressed_genes(fpkm_data, top_n)
   pheatmap(top_genes, scale = "row", main = paste("Top", top_n, "Expressed Genes"))
 }
+

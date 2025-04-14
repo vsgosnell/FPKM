@@ -88,3 +88,4 @@ get_top_expressed_genes <- function(fpkm_data, top_n = 10) {
   top_genes <- names(sort(avg_fpkm, decreasing = TRUE))[1:top_n]
   return(fpkm_data[top_genes, ])
 }
+
