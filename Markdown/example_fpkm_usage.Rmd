@@ -1,0 +1,32 @@
+---
+title: "Introduction to FPKMc"
+author: "Veronica Gosnell"
+date: "2025-04-14"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(FPKMcalc)
+
+# Simulated data
+counts <- c(1000, 1500, 300)
+gene_length <- c(1000, 2000, 500)  # in base pairs
+
+fpkm_values <- calculate_fpkm(counts, gene_length)
+fpkm_values
+
+```
+ 
+
+# Plotting FPKM Values
+
+```{r}
+barplot(fpkm_values, names.arg = paste("Gene", 1:3),
+        col = "skyblue", main = "FPKM Values",
+        ylab = "FPKM", xlab = "Genes")
+
+```
+
+
+
