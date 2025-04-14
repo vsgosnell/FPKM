@@ -9,10 +9,14 @@
 #' @export
 normalize_counts_tpm <- function(counts, lengths) {
   # Normalize counts to TPM
-  scaling_factor <- sum(counts) / 1e6  # Scale to 1 million
-  tpm <- (counts / lengths) / scaling_factor
-  return(tpm)
+  lengths_kb <- lengths / 1000  # Convert lengths to kilobases
+  rpk <- sweep(counts, 1, lengths_kb, FUN = "/")  # RPK calculation
+
+  # TPM scaling factor: total sum of RPKs across all samples
+  scaling_factor <- sweep(rpk, 2, colSums(rpk) / 1e6, FUN = "/")  # Normalize to TPM
+  return(scaling_factor)
 }
+
 
 #' Filter Low Expression Genes
 #'
@@ -83,9 +87,17 @@ merge_fpkm_tables <- function(fpkm_list) {
 #'
 #' @return A data frame of the top expressed genes.
 #' @export
-get_top_expressed_genes <- function(fpkm_data, top_n = 10) {
-  avg_fpkm <- rowMeans(fpkm_data)
-  top_genes <- names(sort(avg_fpkm, decreasing = TRUE))[1:top_n]
-  return(fpkm_data[top_genes, ])
+get_top_expressed_genes <- function(log_fpkm, n = 50) {
+  # Calculate the mean expression across samples for each gene
+  gene_means <- rowMeans(log_fpkm, na.rm = TRUE)
+
+  # Sort the genes by mean expression in descending order
+  sorted_genes <- sort(gene_means, decreasing = TRUE)
+
+  # Get the top 'n' genes
+  top_genes <- names(sorted_genes)[1:n]
+
+  return(top_genes)
 }
+
 

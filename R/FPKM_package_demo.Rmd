@@ -1,0 +1,131 @@
+---
+title: "FPKM Package demo"
+author: "Veronica Gosnell"
+date: "4/13/2025"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    theme: readable
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+library(FPKM)
+```
+
+# Introduction
+
+The **FPKM** package provides a collection of functions to process, normalize, and visualize RNA-seq expression data. It is designed to be lightweight, beginner-friendly, and suitable for exploratory analysis of transcriptomics data.
+
+# Installation
+
+To install the package hosted on GitHub:
+
+```{r}
+devtools::install_github("vsgosnell/FPKM")
+```
+
+
+
+# Example Workflow
+
+This example demonstrates how to use the `FPKM` package step-by-step.
+
+## 1. Load and Inspect the Data
+
+```{r load-data}
+# Replace with actual file or simulated data
+data <- read_rna_seq_data("example_data.tsv")
+head(data)
+```
+
+## 2. Calculate FPKM Values
+
+```{r calc-fpkm}
+fpkm_table <- calculate_fpkm(data)
+head(fpkm_table)
+```
+
+## 3. Filter Lowly Expressed Genes
+
+```{r filter}
+fpkm_filtered <- filter_low_expression(fpkm_table, threshold = 1)
+```
+
+## 4. Normalize Counts (Optional)
+
+```{r normalize}
+tpm_table <- normalize_counts_tpm(data)
+head(tpm_table)
+```
+
+## 5. Log-transform FPKM
+
+```{r log-transform}
+log_fpkm <- log_transform_fpkm(fpkm_filtered)
+```
+
+## 6. Summarize Expression
+
+```{r summarize}
+summary_stats <- summarize_expression(log_fpkm)
+print(summary_stats)
+```
+
+## 7. Visualize Expression
+
+### Boxplot
+
+```{r boxplot}
+plot_fpkm_boxplot(log_fpkm)
+```
+
+### Distribution
+
+```{r distribution}
+plot_fpkm_distribution(log_fpkm)
+```
+
+### PCA
+
+```{r pca}
+plot_pca_fpkm(log_fpkm)
+```
+
+### Correlation Heatmap
+
+```{r correlation}
+plot_sample_correlation(log_fpkm)
+```
+
+### Expression Heatmap
+
+```{r heatmap}
+top_genes <- get_top_expressed_genes(log_fpkm, n = 50)
+plot_expression_heatmap(log_fpkm, top_genes)
+```
+
+### Single Gene Plot
+
+```{r gene-plot}
+plot_gene_expression(log_fpkm, gene = "GeneX")
+```
+
+## 8. Merge FPKM Tables (for batch comparisons)
+
+```{r merge}
+# Example assumes multiple data frames: fpkm_table1, fpkm_table2...
+merged <- merge_fpkm_tables(list(fpkm_table1, fpkm_table2))
+```
+
+# Session Info
+
+```{r session}
+sessionInfo()
+```
+
+# Conclusion
+
+The **FPKM** package enables straightforward manipulation and visualization of RNA-seq expression data. For questions, bug reports, or contributions, please visit [GitHub Repo](https://github.com/yourusername/FPKM).

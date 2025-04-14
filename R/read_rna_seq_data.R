@@ -1,9 +1,27 @@
-#' Read RNA-seq Data File
+#' Read RNA-seq Data
 #'
-#' @param file_path Path to RNA-seq data file
-#' @return A data frame with GeneID, Counts, and Length_kb
+#' This function reads RNA-seq data from a file and processes it by renaming columns if necessary.
+#'
+#' @param file_path A string representing the path to the RNA-seq data file.
+#' @return A data frame containing the processed RNA-seq data.
 #' @export
 read_rna_seq_data <- function(file_path) {
-  fread(file_path) %>%
-    rename(GeneID = V1, Counts = V2, Length_kb = V3)
+  # Load necessary libraries
+  library(data.table)
+  library(dplyr)
+
+  # Read the data
+  data <- fread(file_path)
+
+  # Print column names to inspect the structure
+  print(colnames(data))
+
+  # Check and rename columns only if necessary
+  data <- data %>%
+    rename_with(~ c("GeneID", "Chr", "Start", "End", "Strand", "Length",
+                    "vehicle_rep1", "vehicle_rep2", "drug_rep1", "drug_rep2"),
+                everything())  # Rename all columns to the desired names
+
+  # Return the processed data
+  return(data)
 }
