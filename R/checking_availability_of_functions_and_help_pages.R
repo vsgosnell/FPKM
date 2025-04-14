@@ -1,7 +1,7 @@
 # Test script to check if functions are available and documented
 
 # Load your package
-library(FPKM)
+
 
 # List of functions to test
 functions_to_test <- c("calculate_fpkm", "log_transform_fpkm", "merge_fpkm_tables",

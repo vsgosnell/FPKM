@@ -1,5 +1,5 @@
 ---
-title: "Introduction to FPKMc"
+title: "Introduction to FPKM"
 author: "Veronica Gosnell"
 date: "2025-04-14"
 output: html_document
