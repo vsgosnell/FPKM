@@ -21,11 +21,12 @@ The **FPKM** package provides a collection of functions to process, normalize, a
 
 # Installation
 
-To install the package from GitHub:
+To install the package hosted on GitHub:
 
-```{r install, echo = TRUE, message = FALSE, warning = FALSE)}
-devtools::install_github("https://github.com/vsgosnell/FPKM/tree/main")
+```{r}
+devtools::install_github("vsgosnell/FPKM")
 ```
+
 
 
 # Example Workflow
@@ -34,213 +35,41 @@ This example demonstrates how to use the `FPKM` package step-by-step.
 
 ## 1. Load and Inspect the Data
 
-```{r load-data, echo = TRUE, message = FALSE, warning = FALSE)}
-library(data.table)
-library(dplyr)
-
-# Read the data
-data <- fread("/Users/veronicagosnell/Desktop/R/FPKM/data/vehicle_drug_feature_counts.txt")
-
-# Manually rename columns based on what you see printed
-colnames(data) <- c("GeneID", "Chr", "Start", "End", "Strand", "Length", 
-                    "vehicle_rep1", "vehicle_rep2", "drug_rep1", "drug_rep2")
-
-# Check the updated column names
-print(colnames(data))
-
+```{r load-data}
+# Replace with actual file or simulated data
+data <- read_rna_seq_data("example_data.tsv")
 head(data)
 ```
 
 ## 2. Calculate FPKM Values
 
-This function calculates the FPKM (Fragments Per Kilobase of transcript per Million mapped reads) values from raw gene expression count data and gene lengths. The FPKM values normalize the raw counts by both the length of the gene and the total number of reads.
-
-###Inputs:
-
-1. counts: A data frame or matrix of raw counts, with rows representing genes and columns representing samples.
-
-2. lengths: A vector or named vector of gene lengths (in base pairs).
-
-###Outputs:
-
-- A matrix or data frame of FPKM values with the same dimensions as the input counts data, but values are adjusted for gene length and total read counts.
-
-###Additional Information:
-
-- This function performs error-checking to ensure that the counts and lengths have matching gene names, ensuring data alignment.
-
-
-```{r calc-fpkm, echo = TRUE, message = FALSE, warning = FALSE)}
-
-
-
-library(dplyr)
-
-# Ensure data is loaded correctly and GeneID is a character
-data <- data %>%
-  mutate(GeneID = as.character(GeneID))
-
-# Extract counts and set rownames
-counts <- data %>%
-  select(vehicle_rep1, vehicle_rep2, drug_rep1, drug_rep2) %>%
-  as.data.frame()
-rownames(counts) <- data$GeneID
-
-# Extract lengths and name them by GeneID
-lengths <- data$Length
-names(lengths) <- data$GeneID
-
-# Diagnostic output
-cat("nrow(counts):", nrow(counts), "\n")
-cat("length(lengths):", length(lengths), "\n")
-cat("All gene names match? ", all(rownames(counts) == names(lengths)), "\n")
-
-# Double-check for NAs or misalignment
-if (any(is.na(lengths))) {
-  stop("Some genes in counts have no corresponding length.")
-}
-
-# FPKM function (safe)
-calculate_fpkm <- function(counts, lengths) {
-  if (is.null(rownames(counts)) || is.null(names(lengths))) {
-    stop("Counts and lengths must have gene IDs.")
-  }
-
-  # Align lengths to counts by gene
-  lengths <- lengths[rownames(counts)]
-
-  if (any(is.na(lengths))) {
-    stop("Some gene lengths are missing after alignment.")
-  }
-
-  lengths_kb <- lengths / 1000
-  total_counts_per_sample <- colSums(counts)
-  fpkm <- sweep(counts, 2, total_counts_per_sample / 1e6, FUN = "/")
-  fpkm <- sweep(fpkm, 1, lengths_kb, FUN = "/")
-  return(fpkm)
-}
-
-# Run it
-fpkm_table <- calculate_fpkm(counts, lengths)
+```{r calc-fpkm}
+fpkm_table <- calculate_fpkm(data)
 head(fpkm_table)
-
-
 ```
-## Run a test to check
-
-```{r, echo = TRUE, message = FALSE, warning = FALSE)}
-library(dplyr)
-library(data.table)
-
-# Simulate small example data
-counts <- data.frame(
-  sample1 = c(100, 200, 300),
-  sample2 = c(50, 250, 350)
-)
-lengths <- c(1000, 2000, 1500)
-
-calculate_fpkm <- function(counts, lengths) {
-  if (nrow(counts) != length(lengths)) {
-    stop("Counts and lengths must have the same number of genes (rows).")
-  }
-  lengths_kb <- lengths / 1000
-  total_counts_per_sample <- colSums(counts)
-  fpkm <- sweep(counts, 2, total_counts_per_sample / 1e6, FUN = "/")
-  fpkm <- sweep(fpkm, 1, lengths_kb, FUN = "/")
-  return(fpkm)
-}
-
-fpkm_table <- calculate_fpkm(counts, lengths)
-fpkm_table
-
-```
-
 
 ## 3. Filter Lowly Expressed Genes
 
-This function filters out genes that are below a certain FPKM threshold, effectively removing lowly expressed genes from the analysis.
-
-###Inputs: 
-
-1. fpkm_table: A data frame or matrix containing FPKM values (calculated by the calculate_fpkm function).
-
-2. threshold: A numeric value representing the minimum FPKM value for genes to be kept in the dataset.
-
-###Outputs:
-
-- A filtered version of fpkm_table, containing only genes with FPKM values greater than or equal to the threshold.
-
-###Additional Information:
-- The threshold is typically set based on the specific analysis context and the desired level of gene expression.
-
-
-```{r filter, echo = TRUE, message = FALSE, warning = FALSE)}
+```{r filter}
 fpkm_filtered <- filter_low_expression(fpkm_table, threshold = 1)
 ```
 
 ## 4. Normalize Counts (Optional)
 
-This function normalizes the raw counts to TPM (Transcripts Per Million), another common RNA-seq normalization method. TPM adjusts for both gene length and sequencing depth.
-
-###Inputs:
-
-1. count_cols: A data frame containing raw count data (samples in columns, genes in rows).
-
-2. lengths: A vector of gene lengths (in base pairs).
-
-###Outputs:
-
-- A data frame with TPM values, normalized for both gene length and total counts across samples.
-
-###Additional Information:
-- TPM differs from FPKM in that the sum of TPMs across all genes in a sample is always 1 million, making it more comparable across samples with different sequencing depths.
-
-
-```{r normalize, echo = TRUE, message = FALSE, warning = FALSE)}
-count_cols <- data %>%
-  select(vehicle_rep1, vehicle_rep2, drug_rep1, drug_rep2)
-
-lengths <- data$Length
-
-tpm_table <- normalize_counts_tpm(count_cols, lengths)
-
+```{r normalize}
+tpm_table <- normalize_counts_tpm(data)
 head(tpm_table)
 ```
 
 ## 5. Log-transform FPKM
 
-This function performs a log-transformation of the FPKM values to make the distribution of gene expression data more normal and suitable for visualization and statistical analysis.
-
-###Inputs:
-
-1. fpkm_filtered: A data frame of FPKM values after low-expression genes have been filtered.
-
-###Outputs:
- - A data frame of log-transformed FPKM values. The log transformation is typically base 2 or natural logarithm, depending on the function's definition.
-
-###Additional Information:
-- The log-transformation is commonly applied in RNA-seq analysis to reduce the skewness of gene expression data and to make statistical comparisons more robust.
-
-
-```{r log-transform, echo = TRUE, message = FALSE, warning = FALSE)}
+```{r log-transform}
 log_fpkm <- log_transform_fpkm(fpkm_filtered)
 ```
 
 ## 6. Summarize Expression
 
-This function calculates summary statistics (such as mean, median, and variance) for the log-transformed FPKM values.
-
-###Inputs:
-1. log_fpkm: A data frame of log-transformed FPKM values.
-
-###Outputs:
-- A data frame or summary table containing the summary statistics (mean, median, variance) for each gene.
-
-###Additional Information:
-- This function helps understand the overall distribution of expression levels across all genes and samples, which is useful for identifying highly variable genes.
-
-
-```{r summarize, echo = TRUE, message = FALSE, warning = FALSE)}
+```{r summarize}
 summary_stats <- summarize_expression(log_fpkm)
 print(summary_stats)
 ```
@@ -249,143 +78,54 @@ print(summary_stats)
 
 ### Boxplot
 
-This function generates a boxplot of FPKM values across samples to visualize the distribution of gene expression levels in a dataset.
-
-###Inputs:
-
-1. log_fpkm: A data frame of log-transformed FPKM values.
-
-###Outputs:
-
-- A boxplot visualizing the distribution of expression values for each sample, with samples on the x-axis and FPKM values on the y-axis.
-
-###Additional Information:
-
-- The boxplot is a great way to visualize the spread and central tendency of gene expression data across different samples.
-
-
-```{r boxplot, echo = TRUE, message = FALSE, warning = FALSE)}
-
-
-# Check the structure of log_fpkm
-cat("Dimensions of log_fpkm:\n")
-print(dim(log_fpkm))  # This will show how many rows and columns are present
-
-# Check the column names of log_fpkm
-cat("Column names of log_fpkm:\n")
-print(colnames(log_fpkm))  # This will show the names of the columns
-
-# Plot function for FPKM boxplot
-plot_fpkm_boxplot <- function(log_fpkm) {
-  # Ensure log_fpkm has the correct number of columns (one for each sample)
-  if (ncol(log_fpkm) != 4) {  # Adjust the number to match your dataset
-    stop("log_fpkm has an unexpected number of columns.")
-  }
-  
-  # Reshape the data for ggplot
-  fpkm_data_long <- log_fpkm %>%
-    rownames_to_column("Gene") %>%
-    pivot_longer(cols = -Gene, names_to = "Sample", values_to = "FPKM")
-
-  # Create the boxplot
-  ggplot(fpkm_data_long, aes(x = Sample, y = FPKM)) +
-    geom_boxplot() +
-    theme_minimal() +
-    labs(title = "FPKM Boxplot", x = "Sample", y = "FPKM")
-}
-
-# Call the function to plot
+```{r boxplot}
 plot_fpkm_boxplot(log_fpkm)
-
 ```
 
 ### Distribution
 
-This function generates a histogram of log-transformed FPKM values to visualize the distribution of expression data for all genes.
-
-###Inputs:
-
-1. log_fpkm: A data frame of log-transformed FPKM values.
-
-###Outputs:
-
-- A histogram that shows the distribution of log-transformed FPKM values across all genes.
-
-###Additional Information:
-
-- This plot helps identify the skewness of gene expression distributions, revealing whether the data is heavily right-skewed (which is common in RNA-seq data).
-
-
-```{r distribution, echo = TRUE, message = FALSE, warning = FALSE)}
-plot_fpkm_distribution <- function(log_fpkm) {
-  # Reshape the data to long format
-  fpkm_data_long <- log_fpkm %>%
-    rownames_to_column("Gene") %>%
-    pivot_longer(cols = -Gene, names_to = "Sample", values_to = "Log_FPKM")
-  
-  # Plot the histogram of log-transformed FPKM values
-  ggplot(fpkm_data_long, aes(x = Log_FPKM)) +
-    geom_histogram(binwidth = 0.1, fill = "blue", color = "black", alpha = 0.7) +
-    theme_minimal() +
-    labs(title = "Log-Transformed FPKM Distribution", x = "Log(FPKM)", y = "Frequency")
-  
-#plot the function
+```{r distribution}
 plot_fpkm_distribution(log_fpkm)
-
-}
 ```
 
 ### PCA
 
-This function performs a Principal Component Analysis (PCA) on the FPKM data and visualizes the first two principal components. PCA is used for dimensionality reduction and to identify major sources of variation in the data.
-
-###Inputs:
-
-1. log_fpkm: A data frame of log-transformed FPKM values.
-
-###Outputs:
-
-- A PCA plot showing the first two principal components of gene expression data, helping to reveal clustering or separation between samples.
-
-###Additional Information:
-
-- PCA is a common technique used in RNA-seq analysis to explore the relationships between samples based on gene expression profiles.
-
-
-```{r pca, echo = TRUE, message = FALSE, warning = FALSE)}
-library(dplyr)
-library(ggplot2)
-
-plot_pca_fpkm <- function(log_fpkm) {
-  # Ensure that the data is numeric (ignoring non-numeric columns such as rownames)
-  log_fpkm_numeric <- log_fpkm %>%
-    select(-Gene) %>% # Exclude the Gene column if it exists
-    as.data.frame()
-
-  # Perform PCA
-  pca_result <- prcomp(log_fpkm_numeric, scale. = TRUE)
-  
-  # Create a data frame for plotting
-  pca_data <- data.frame(pca_result$x)
-  
-  # Plot PCA
-  ggplot(pca_data, aes(x = PC1, y = PC2)) +
-    geom_point(aes(color = rownames(pca_data))) +
-    theme_minimal() +
-    labs(title = "PCA of FPKM Data", x = "PC1", y = "PC2")
-}
-
-
+```{r pca}
 plot_pca_fpkm(log_fpkm)
 ```
 
+### Correlation Heatmap
+
+```{r correlation}
+plot_sample_correlation(log_fpkm)
+```
+
+### Expression Heatmap
+
+```{r heatmap}
+top_genes <- get_top_expressed_genes(log_fpkm, n = 50)
+plot_expression_heatmap(log_fpkm, top_genes)
+```
+
+### Single Gene Plot
+
+```{r gene-plot}
+plot_gene_expression(log_fpkm, gene = "GeneX")
+```
+
+## 8. Merge FPKM Tables (for batch comparisons)
+
+```{r merge}
+# Example assumes multiple data frames: fpkm_table1, fpkm_table2...
+merged <- merge_fpkm_tables(list(fpkm_table1, fpkm_table2))
+```
 
 # Session Info
 
-```{r session, echo = TRUE, message = FALSE, warning = FALSE)}
+```{r session}
 sessionInfo()
 ```
 
 # Conclusion
 
-The **FPKM** package enables straightforward manipulation and visualization of RNA-seq expression data. For questions, bug reports, or contributions, please visit [GitHub Repo](https://github.com/vsgosnell/FPKM).
+The **FPKM** package enables straightforward manipulation and visualization of RNA-seq expression data. For questions, bug reports, or contributions, please visit [GitHub Repo](https://github.com/yourusername/FPKM).

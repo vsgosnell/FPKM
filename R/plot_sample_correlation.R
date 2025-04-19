@@ -6,11 +6,6 @@
 #'
 #' @return A heatmap plot.
 #' @export
-# Ensure the data is numeric (ignoring any non-numeric columns like Gene)
-log_fpkm_numeric <- log_fpkm %>%
-  select(-Gene) %>%  # Exclude the Gene column
-  mutate(across(everything(), as.numeric))  # Convert all columns to numeric
-
 plot_sample_correlation <- function(log_fpkm) {
   # Ensure all columns (except Gene) are numeric
   log_fpkm_numeric <- log_fpkm %>%
@@ -42,4 +37,4 @@ plot_sample_correlation <- function(log_fpkm) {
 }
 
 # Call the function
-plot_sample_correlation(log_fpkm)
+# plot_sample_correlation(log_fpkm)
