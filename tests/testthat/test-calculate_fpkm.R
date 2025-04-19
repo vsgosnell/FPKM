@@ -1,5 +1,15 @@
+test_that("calculate_fpkm computes expected FPKM values", {
+  # Example input: read counts and lengths
+  counts <- data.frame(counts = c(100, 200, 300))
+  lengths <- c(1000, 2000, 1500)
+  total_counts <- sum(counts$counts)
 
+  # Expected FPKM = (10^9 * counts) / (lengths * total_counts)
+  expected_fpkm <- (1e9 * counts$counts) / (lengths * total_counts)
 
-test_that("multiplication works", {
-  expect_equal(2 * 2, 4)
+  # Call the function from your package
+  computed_fpkm <- calculate_fpkm(counts, lengths)
+
+  # Compare the numeric vector from the result's column
+  expect_equal(computed_fpkm$counts, expected_fpkm)
 })
