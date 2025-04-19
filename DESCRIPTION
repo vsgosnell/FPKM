@@ -2,7 +2,11 @@ Package: FPKM
 Title: Calculate FPKM from RNA-seq Data
 Version: 0.0.0.9000
 Authors@R: person("Veronica Gosnell", email = "veronicagosnell@gmail.com", role = c("aut", "cre"))
-Description: A package for calculating FPKM (Fragments Per Kilobase of transcript per Million mapped reads) from RNA-seq count data.
+Description: An R package for RNA-seq data analysis, providing functions for 
+    FPKM calculation, transformation, normalization, visualization 
+    (boxplots, heatmaps, PCA), and exploration of gene expression data, 
+    with tools for filtering low expression genes and summarizing expression 
+    profiles.
 License: MIT + file LICENSE
 Depends: 
     R (>= 4.0)
