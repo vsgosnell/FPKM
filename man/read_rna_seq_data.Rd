@@ -2,16 +2,16 @@
 % Please edit documentation in R/read_rna_seq_data.R
 \name{read_rna_seq_data}
 \alias{read_rna_seq_data}
-\title{Read RNA-seq Data File}
+\title{Read RNA-seq Data}
 \usage{
 read_rna_seq_data(file_path)
 }
 \arguments{
-\item{file_path}{Path to RNA-seq data file}
+\item{file_path}{A string representing the path to the RNA-seq data file.}
 }
 \value{
-A data frame with GeneID, Counts, and Length_kb
+A data frame containing the processed RNA-seq data.
 }
 \description{
-Read RNA-seq Data File
+This function reads RNA-seq data from a file and processes it by renaming columns if necessary.
 }

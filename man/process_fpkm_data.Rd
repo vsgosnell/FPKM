@@ -7,10 +7,10 @@
 process_fpkm_data(data)
 }
 \arguments{
-\item{data}{Data frame with `Counts` and `Length_kb` columns}
+\item{data}{Data frame with \code{Counts} and \code{Length_kb} columns}
 }
 \value{
-Data frame with added `FPKM` column, sorted by FPKM
+Data frame with added \code{FPKM} column, sorted by FPKM
 }
 \description{
 Process FPKM Data Frame
