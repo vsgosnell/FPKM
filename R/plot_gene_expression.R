@@ -8,13 +8,17 @@
 #'
 #' @return A plot of the gene expression.
 #' @export
-plot_gene_expression <- function(fpkm_data, gene, plot_type = "bar") {
-  library(ggplot2)
-  gene_data <- fpkm_data[gene, ]
-  gene_data <- data.frame(Sample = colnames(fpkm_data), FPKM = gene_data)
+plot_gene_expression <- function(fpkm_data, gene) {
+  if (!gene %in% rownames(fpkm_data)) {
+    stop(sprintf("Gene '%s' not found in row names", gene))
+  }
 
-  ggplot(gene_data, aes(x = Sample, y = FPKM)) +
-    (if (plot_type == "bar") geom_bar(stat = "identity") else geom_line()) +
-    theme_minimal() +
-    labs(title = paste("Expression of", gene))
+  expr <- as.numeric(fpkm_data[gene, ])
+  df <- data.frame(Sample = colnames(fpkm_data), Expression = expr)
+
+  ggplot2::ggplot(df, ggplot2::aes(x = Sample, y = Expression)) +
+    ggplot2::geom_bar(stat = "identity", fill = "steelblue") +
+    ggplot2::theme_minimal() +
+    ggplot2::labs(title = paste("Expression of", gene), y = "FPKM")
 }
+

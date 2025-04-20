@@ -1,6 +1,9 @@
-test_that("plot_gene_expression returns a ggplot object", {
-  df <- data.frame(S1 = 1:3, S2 = 4:6)
+test_that("plot_gene_expression works with proper row names", {
+  df <- data.frame(
+    Sample1 = c(10, 20, 30),
+    Sample2 = c(15, 25, 35)
+  )
   rownames(df) <- c("Gene1", "Gene2", "Gene3")
-  p <- plot_gene_expression(df, "Gene1")
-  expect_s3_class(p, "ggplot")
+
+  expect_silent(plot_gene_expression(df, "Gene1"))
 })

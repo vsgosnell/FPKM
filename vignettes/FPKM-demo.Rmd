@@ -1,0 +1,161 @@
+---
+title: "Analyzing RNA-seq Data with the FPKM Package"
+author: "Veronica Gosnell"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{FPKM Demo}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+# Introduction
+
+This vignette demonstrates how to use the `FPKM` package to analyze RNA-seq data. We will cover several common tasks, such as reading in RNA-seq data, filtering low-expression genes, normalizing for gene length and sequencing depth, and generating key visualizations (heatmaps, boxplots, PCA).
+
+## Installation
+
+First, make sure you have the `FPKM` package installed. You can install it from GitHub with the following command:
+
+```{r}
+# Install devtools if not installed
+# install.packages("devtools")
+devtools::install_github("vsgosnell/FPKM")
+```
+
+# Loading the Package
+## Once installed, load the package:
+
+
+```{r}
+library(FPKM)
+```
+
+# Loading Data
+The first step in RNA-seq analysis is to load your data. We will load the RNA-seq data from the `vehicle_drug_feature_counts.txt` file. The file contains read counts for multiple samples, including vehicle and drug treatment conditions.
+
+
+```{r}
+# Set the path to your data file
+data_path <- "/Users/veronicagosnell/Desktop/R/FPKM/data/vehicle_drug_feature_counts.txt"
+
+# Load the data using the read_rna_seq_data function
+# Assuming the data is formatted correctly and the function is available in the FPKM package
+vehicle_drug_data <- read_rna_seq_data(data_path)
+```
+
+# View the first few rows to confirm it loaded correctly
+
+```{r}
+head(vehicle_drug_data)
+```
+
+## The dataset contains the following columns:
+
+- Geneid: The gene identifier
+
+- Chr: The chromosome
+
+- Start: The start position of the gene
+
+- End: The end position of the gene
+
+- Strand: The strand of the gene
+
+- Length: The length of the gene
+
+- vehicle_rep1.bam, vehicle_rep2.bam, drug_rep1.bam, drug_rep2.bam: 
+- The read counts for different replicates of the vehicle and drug treatments.
+
+# Calculating FPKM Values
+
+Once the data is loaded, you can compute FPKM (Fragments Per Kilobase of transcript per Million mapped reads) values. The calculate_fpkm() function calculates the FPKM values from read counts and gene lengths.
+
+```{r}
+# Extract counts and gene lengths from the data
+counts <- vehicle_drug_data[, c("vehicle_rep1", "vehicle_rep2", "drug_rep1", "drug_rep2")]
+gene_lengths <- vehicle_drug_data$Length
+
+# Calculate FPKM values
+fpkm_values <- calculate_fpkm(counts, gene_lengths)
+
+# View the first few rows of the FPKM values
+head(fpkm_values)
+```
+This function returns a data frame containing the FPKM values for each gene across all samples.
+
+# Filtering Low Expression Genes
+
+To improve the accuracy of downstream analysis, we can filter out genes with low expression levels. The filter_low_expression() function allows us to filter genes based on a threshold FPKM value.
+
+```{r}
+# Filter out genes with low expression (e.g., FPKM < 1)
+filtered_data <- filter_low_expression(fpkm_values, threshold = 1)
+
+# View the first few rows of the filtered data
+head(filtered_data)
+```
+
+# Visualizing Gene Expression
+
+## Heatmap of Gene Expression
+
+We can create a heatmap to visualize the gene expression patterns across the samples using the plot_expression_heatmap() function.
+
+```{r}
+# Plot heatmap of filtered FPKM values
+plot_expression_heatmap(filtered_data)
+```
+
+
+## Boxplot of FPKM Distribution
+
+A boxplot can be helpful to visualize the distribution of gene expression across samples.
+
+```{r}
+# Plot boxplot of FPKM values
+plot_fpkm_boxplot(filtered_data)
+```
+
+## Distribution of FPKM Values
+
+To assess the overall distribution of expression levels, we can plot the distribution of FPKM values.
+
+```{r}
+# Convert to data frame if it's still a matrix
+filtered_data <- as.data.frame(filtered_data)
+
+# Add a column for average FPKM across all samples
+filtered_data$FPKM <- rowMeans(filtered_data)
+
+# Then plot distribution of FPKM values
+plot_fpkm_distribution(filtered_data$FPKM)
+```
+
+
+# Principal Component Analysis (PCA)
+
+To explore the overall variation in the data, we can perform Principal Component Analysis (PCA) on the FPKM values.
+
+```{r}
+# Perform PCA on the filtered FPKM values
+plot_pca_fpkm(filtered_data)
+```
+
+This PCA plot will help us understand how the samples cluster based on their gene expression profiles.
+
+
+# Correlation Between Samples
+
+We can also check the correlation between samples using the plot_sample_correlation() function.
+
+```{r}
+# Plot correlation between samples
+plot_sample_correlation(filtered_data)
+```
+
+# Conclusion
+
+This vignette demonstrated how to use the FPKM package for RNA-seq data analysis. We loaded a dataset, calculated FPKM values, filtered low expression genes, and visualized the data using heatmaps, boxplots, and PCA. These steps provide a solid foundation for further exploration of gene expression data.
+
+For more information on the FPKM package, please refer to the package documentation or explore additional functions for advanced analysis.
+

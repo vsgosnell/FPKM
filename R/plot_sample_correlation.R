@@ -6,35 +6,26 @@
 #'
 #' @return A heatmap plot.
 #' @export
-plot_sample_correlation <- function(log_fpkm) {
-  # Ensure all columns (except Gene) are numeric
-  log_fpkm_numeric <- log_fpkm %>%
-    select(-Gene) %>%
-    mutate(across(everything(), as.numeric))  # Convert all columns to numeric
+plot_sample_correlation <- function(fpkm_data) {
+  numeric_data <- fpkm_data[, sapply(fpkm_data, is.numeric), drop = FALSE]
 
-  # Check if there are any non-numeric values
-  if (anyNA(log_fpkm_numeric)) {
-    warning("There are NA values in the numeric data!")
+  # Drop zero-variance columns
+  numeric_data <- numeric_data[, apply(numeric_data, 2, function(x) var(x, na.rm = TRUE) != 0), drop = FALSE]
+
+  if (ncol(numeric_data) < 2) {
+    warning("Not enough variable columns to compute correlation matrix.")
+    return(NULL)
   }
 
-  # Compute correlation matrix (transpose the data to get samples as rows)
-  correlation_matrix <- cor(t(log_fpkm_numeric))  # Transpose to get samples as rows
+  correlation_matrix <- cor(numeric_data, use = "pairwise.complete.obs")
+  df_long <- reshape2::melt(correlation_matrix, varnames = c("Sample1", "Sample2"), value.name = "Correlation")
 
-  # Plot correlation matrix as a heatmap
-  library(ggplot2)
-  library(reshape2)
-
-  # Reshape for ggplot
-  correlation_data <- melt(correlation_matrix)
-
-  # Plot the heatmap
-  ggplot(correlation_data, aes(x = Var1, y = Var2, fill = value)) +
-    geom_tile() +
-    scale_fill_gradient2(midpoint = 0, low = "blue", high = "red", mid = "white") +
-    theme_minimal() +
-    labs(title = "Sample Correlation Heatmap", x = "Sample", y = "Sample") +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  ggplot2::ggplot(df_long, ggplot2::aes(x = Sample1, y = Sample2, fill = Correlation)) +
+    ggplot2::geom_tile() +
+    ggplot2::scale_fill_gradient2(low = "blue", high = "red", mid = "white", midpoint = 0.5) +
+    ggplot2::theme_minimal() +
+    ggplot2::labs(title = "Sample Correlation Heatmap", fill = "Correlation")
 }
 
-# Call the function
-# plot_sample_correlation(log_fpkm)
+
+# modified to drop columns with no variance and handles empty cases

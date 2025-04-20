@@ -6,22 +6,19 @@
 #'
 #' @return A ggplot2 boxplot.
 #' @export
-plot_fpkm_boxplot <- function(log_fpkm) {
+plot_fpkm_boxplot <- function(fpkm_data) {
+
   library(tidyr)
   library(ggplot2)
 
-  counts_only <- log_fpkm[, !colnames(log_fpkm) %in% "Gene"]
+  log_fpkm <- log2(fpkm_data + 1)
 
-  if (ncol(counts_only) != 4) {
-    stop("log_fpkm has an unexpected number of columns.")
-  }
+  # Reshape to long format
+  long_fpkm <- reshape2::melt(as.matrix(log_fpkm))
+  colnames(long_fpkm) <- c("Gene", "Sample", "logFPKM")
 
-  fpkm_data_long <- log_fpkm %>%
-    tibble::rownames_to_column("Gene") %>%
-    pivot_longer(cols = -Gene, names_to = "Sample", values_to = "FPKM")
-
-  ggplot(fpkm_data_long, aes(x = Sample, y = FPKM)) +
-    geom_boxplot() +
-    theme_minimal() +
-    labs(title = "FPKM Boxplot", x = "Sample", y = "FPKM")
+  ggplot2::ggplot(long_fpkm, ggplot2::aes(x = Sample, y = logFPKM)) +
+    ggplot2::geom_boxplot() +
+    ggplot2::theme_minimal() +
+    ggplot2::labs(title = "FPKM Expression Boxplot", y = "log2(FPKM + 1)")
 }

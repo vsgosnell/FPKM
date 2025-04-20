@@ -1,9 +1,10 @@
 test_that("plot_fpkm_boxplot returns a ggplot object", {
-  df <- data.frame(Gene = c("G1", "G2", "G3"),
-                   Sample1 = c(1, 2, 3),
-                   Sample2 = c(4, 5, 6),
-                   Sample3 = c(7, 8, 9),
-                   Sample4 = c(10, 11, 12))
+  df <- data.frame(
+    Sample1 = c(1, 5, 3),
+    Sample2 = c(2, 6, 4)
+  )
+  rownames(df) <- c("Gene1", "Gene2", "Gene3")
+
   p <- plot_fpkm_boxplot(df)
   expect_s3_class(p, "ggplot")
 })
