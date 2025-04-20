@@ -72,7 +72,7 @@ Once the data is loaded, you can compute FPKM (Fragments Per Kilobase of transcr
 
 ```{r}
 # Extract counts and gene lengths from the data
-counts <- vehicle_drug_data[, c("vehicle_rep1", "vehicle_rep2", "drug_rep1", "drug_rep2")]
+counts <- vehicle_drug_data[, grep("bam$", colnames(vehicle_drug_data))]  # Extract count columns
 gene_lengths <- vehicle_drug_data$Length
 
 # Calculate FPKM values
@@ -91,6 +91,9 @@ To improve the accuracy of downstream analysis, we can filter out genes with low
 # Filter out genes with low expression (e.g., FPKM < 1)
 filtered_data <- filter_low_expression(fpkm_values, threshold = 1)
 
+# ensure filtered_data is numeric before passing it to plotting functions
+filtered_data <- filtered_data[, sapply(filtered_data, is.numeric)]
+
 # View the first few rows of the filtered data
 head(filtered_data)
 ```
@@ -102,6 +105,14 @@ head(filtered_data)
 We can create a heatmap to visualize the gene expression patterns across the samples using the plot_expression_heatmap() function.
 
 ```{r}
+# Ensure the data is numeric before passing to pheatmap
+numeric_data <- filtered_data[, sapply(filtered_data, is.numeric)]
+if (ncol(numeric_data) > 0) {
+  pheatmap::pheatmap(as.matrix(numeric_data), scale = "row")
+} else {
+  stop("Filtered data contains no numeric values.")
+}
+
 # Plot heatmap of filtered FPKM values
 plot_expression_heatmap(filtered_data)
 ```
@@ -125,7 +136,7 @@ To assess the overall distribution of expression levels, we can plot the distrib
 filtered_data <- as.data.frame(filtered_data)
 
 # Add a column for average FPKM across all samples
-filtered_data$FPKM <- rowMeans(filtered_data)
+filtered_data$FPKM <- rowMeans(filtered_data[, sapply(filtered_data, is.numeric)])
 
 # Then plot distribution of FPKM values
 plot_fpkm_distribution(filtered_data$FPKM)
@@ -137,8 +148,11 @@ plot_fpkm_distribution(filtered_data$FPKM)
 To explore the overall variation in the data, we can perform Principal Component Analysis (PCA) on the FPKM values.
 
 ```{r}
-# Perform PCA on the filtered FPKM values
-plot_pca_fpkm(filtered_data)
+# select numeric columns from filtered_data
+numeric_data <- filtered_data[, sapply(filtered_data, is.numeric)]
+
+# Perform PCA on the numeric filtered FPKM values
+plot_pca_fpkm(numeric_data)
 ```
 
 This PCA plot will help us understand how the samples cluster based on their gene expression profiles.
@@ -150,7 +164,7 @@ We can also check the correlation between samples using the plot_sample_correlat
 
 ```{r}
 # Plot correlation between samples
-plot_sample_correlation(filtered_data)
+plot_sample_correlation(numeric_data)
 ```
 
 # Conclusion

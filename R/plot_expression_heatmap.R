@@ -1,23 +1,26 @@
-#' Plot Expression Heatmap for Top N Genes
+#' Plot Expression Heatmap
 #'
-#' Generates a heatmap for the top N expressed genes.
+#' @param fpkm_data A data frame of FPKM values (genes as rows, samples as columns).
 #'
-#' @param fpkm_data A data frame of FPKM values.
-#' @param top_n The number of top expressed genes to plot.
-#'
-#' @return A heatmap plot.
+#' @return A pheatmap object.
 #' @export
-plot_expression_heatmap <- function(fpkm_data, top_n = 20) {
-  # Keep only numeric columns
-  numeric_data <- fpkm_data[, sapply(fpkm_data, is.numeric), drop = FALSE]
+plot_expression_heatmap <- function(fpkm_data) {
+  # Ensure only numeric columns are passed to pheatmap
+  numeric_data <- fpkm_data[, sapply(fpkm_data, is.numeric)]
 
-  # Select top N genes by mean expression
-  gene_means <- rowMeans(numeric_data)
-  top_genes <- order(gene_means, decreasing = TRUE)[1:min(top_n, nrow(fpkm_data))]
+  # If there are no numeric columns, stop and notify
+  if (ncol(numeric_data) == 0) {
+    stop("No numeric columns found in the data.")
+  }
 
-  mat <- as.matrix(numeric_data[top_genes, , drop = FALSE])
+  # Convert to matrix for pheatmap
+  expression_matrix <- as.matrix(numeric_data)
 
-  if (!is.numeric(mat)) stop("Heatmap matrix must be numeric")
-
-  pheatmap::pheatmap(mat, scale = "row", cluster_rows = TRUE, cluster_cols = TRUE)
+  # Plot heatmap
+  pheatmap::pheatmap(expression_matrix,
+                     scale = "row",
+                     clustering_distance_rows = "euclidean",
+                     clustering_distance_cols = "euclidean",
+                     clustering_method = "complete",
+                     color = colorRampPalette(RColorBrewer::brewer.pal(9, "Blues"))(100))
 }
