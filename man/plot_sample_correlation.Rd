@@ -4,14 +4,14 @@
 \alias{plot_sample_correlation}
 \title{Plot Sample Correlation Heatmap}
 \usage{
-plot_sample_correlation(log_fpkm)
+plot_sample_correlation(numeric_data)
 }
 \arguments{
-\item{fpkm_data}{A data frame of FPKM values.}
+\item{numeric_data}{A data frame or matrix of numeric FPKM values (genes as rows, samples as columns).}
 }
 \value{
-A heatmap plot.
+A pheatmap object.
 }
 \description{
-Generates a heatmap showing the correlation between samples based on FPKM values.
+Plot Sample Correlation Heatmap
 }

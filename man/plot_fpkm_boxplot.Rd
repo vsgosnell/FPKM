@@ -4,10 +4,10 @@
 \alias{plot_fpkm_boxplot}
 \title{Plot FPKM Distribution Boxplot}
 \usage{
-plot_fpkm_boxplot(log_fpkm)
+plot_fpkm_boxplot(fpkm_data)
 }
 \arguments{
-\item{log_fpkm}{A data frame of log-transformed FPKM values.}
+\item{fpkm_data}{A data frame of FPKM values (genes as rows, samples as columns).}
 }
 \value{
 A ggplot2 boxplot.

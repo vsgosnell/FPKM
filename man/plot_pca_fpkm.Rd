@@ -2,16 +2,16 @@
 % Please edit documentation in R/plot_pca_fpkm.R
 \name{plot_pca_fpkm}
 \alias{plot_pca_fpkm}
-\title{Plot PCA of FPKM Values}
+\title{PCA Plot of FPKM Matrix}
 \usage{
-plot_pca_fpkm(log_fpkm)
+plot_pca_fpkm(fpkm_data)
 }
 \arguments{
-\item{fpkm_data}{A data frame of FPKM values.}
+\item{fpkm_data}{A numeric matrix or data frame with genes as rows and samples as columns.}
 }
 \value{
-A PCA plot.
+A ggplot2 PCA plot object.
 }
 \description{
-Generates a PCA plot based on FPKM values for all genes.
+This function performs PCA on a log2-transformed FPKM matrix.
 }

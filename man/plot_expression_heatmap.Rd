@@ -2,18 +2,16 @@
 % Please edit documentation in R/plot_expression_heatmap.R
 \name{plot_expression_heatmap}
 \alias{plot_expression_heatmap}
-\title{Plot Expression Heatmap for Top N Genes}
+\title{Plot Expression Heatmap}
 \usage{
-plot_expression_heatmap(fpkm_data, top_n = 10)
+plot_expression_heatmap(fpkm_data)
 }
 \arguments{
-\item{fpkm_data}{A data frame of FPKM values.}
-
-\item{top_n}{The number of top expressed genes to plot.}
+\item{fpkm_data}{A data frame or matrix of FPKM values (genes as rows, samples as columns).}
 }
 \value{
-A heatmap plot.
+A pheatmap object.
 }
 \description{
-Generates a heatmap for the top N expressed genes.
+Plot Expression Heatmap
 }

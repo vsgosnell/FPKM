@@ -4,7 +4,7 @@
 \alias{plot_gene_expression}
 \title{Plot Gene Expression Over Samples}
 \usage{
-plot_gene_expression(fpkm_data, gene, plot_type = "bar")
+plot_gene_expression(fpkm_data, gene)
 }
 \arguments{
 \item{fpkm_data}{A data frame of FPKM values.}

@@ -71,15 +71,28 @@ head(vehicle_drug_data)
 Once the data is loaded, you can compute FPKM (Fragments Per Kilobase of transcript per Million mapped reads) values. The calculate_fpkm() function calculates the FPKM values from read counts and gene lengths.
 
 ```{r}
-# Extract counts and gene lengths from the data
-counts <- vehicle_drug_data[, grep("bam$", colnames(vehicle_drug_data))]  # Extract count columns
-gene_lengths <- vehicle_drug_data$Length
+# Extract count columns by directly selecting columns with count data
+counts <- vehicle_drug_data[, c("vehicle_rep1", "vehicle_rep2", "drug_rep1", "drug_rep2")]
 
-# Calculate FPKM values
-fpkm_values <- calculate_fpkm(counts, gene_lengths)
+# Check if counts has data and the correct number of rows
+str(counts)
+dim(counts)
 
-# View the first few rows of the FPKM values
-head(fpkm_values)
+# Extract gene lengths
+gene_lengths <- as.numeric(vehicle_drug_data$Length)
+
+# Check gene lengths
+length(gene_lengths)
+
+# Ensure counts and gene_lengths have the same number of rows
+if (nrow(counts) == length(gene_lengths)) {
+  # Calculate FPKM values
+  fpkm_values <- calculate_fpkm(counts, gene_lengths)
+  head(fpkm_values)
+} else {
+  # Print an error message if counts and gene_lengths have different lengths
+  stop("Error: Mismatch between counts rows and gene_lengths entries.")
+}
 ```
 This function returns a data frame containing the FPKM values for each gene across all samples.
 
@@ -104,17 +117,69 @@ head(filtered_data)
 
 We can create a heatmap to visualize the gene expression patterns across the samples using the plot_expression_heatmap() function.
 
+
 ```{r}
 # Ensure the data is numeric before passing to pheatmap
 numeric_data <- filtered_data[, sapply(filtered_data, is.numeric)]
+
 if (ncol(numeric_data) > 0) {
-  pheatmap::pheatmap(as.matrix(numeric_data), scale = "row")
+  
+  # Remove rows with NAs
+  numeric_data <- numeric_data[complete.cases(numeric_data), ]
+  
+  # Remove columns and rows that are entirely zero
+  numeric_data <- numeric_data[, colSums(numeric_data != 0) > 0]
+  numeric_data <- numeric_data[rowSums(numeric_data != 0) > 0, ]
+  
+  # Convert to a proper numeric matrix
+  numeric_matrix <- as.matrix(numeric_data)
+  
+  # Check structure of the matrix
+  print("Checking structure of numeric_matrix before scaling:")
+  print(str(numeric_matrix))
+  
+  # Ensure row names are preserved before scaling
+  rownames(numeric_matrix) <- rownames(filtered_data)[complete.cases(filtered_data)]
+  colnames(numeric_matrix) <- colnames(filtered_data)[sapply(filtered_data, is.numeric)]
+  
+  # Impute NAs with the column means
+  numeric_matrix[is.na(numeric_matrix)] <- colMeans(numeric_matrix, na.rm = TRUE)
+  
+  # Check if matrix has any non-numeric values after imputation
+  print("Is numeric_matrix numeric?")
+  print(is.numeric(numeric_matrix))
+  
+  # Check if there are any NA or NaN values
+  print("Any NA values in numeric_matrix?")
+  print(any(is.na(numeric_matrix)))
+  
+  # Check rowMeans
+  row_means <- rowMeans(numeric_matrix, na.rm = TRUE)
+  print("Row Means:")
+  print(row_means)
+  
+  # Test matrix (sweep adjustment if necessary)
+  numeric_matrix <- sweep(numeric_matrix, 1, row_means, FUN = "-")
+  
+  # Scale the matrix
+  numeric_matrix <- scale(numeric_matrix)
+  
+  # Check final structure before passing to pheatmap
+  print("Checking final numeric_matrix before heatmap:")
+  print(str(numeric_matrix))
+  
+  # Create the heatmap
+  pheatmap::pheatmap(numeric_matrix,
+                     scale = "row",
+                     clustering_distance_rows = "euclidean",
+                     clustering_distance_cols = "euclidean",
+                     clustering_method = "complete",
+                     color = colorRampPalette(RColorBrewer::brewer.pal(9, "Blues"))(100))
+  
 } else {
   stop("Filtered data contains no numeric values.")
 }
 
-# Plot heatmap of filtered FPKM values
-plot_expression_heatmap(filtered_data)
 ```
 
 
@@ -123,6 +188,12 @@ plot_expression_heatmap(filtered_data)
 A boxplot can be helpful to visualize the distribution of gene expression across samples.
 
 ```{r}
+# Check the structure of filtered_data
+str(filtered_data)
+
+# Check the structure of numeric_data (just the sample columns)
+str(filtered_data[, sapply(filtered_data, is.numeric)])
+
 # Plot boxplot of FPKM values
 plot_fpkm_boxplot(filtered_data)
 ```

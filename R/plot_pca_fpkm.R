@@ -1,25 +1,26 @@
-#' Plot PCA of FPKM Values
+#' PCA Plot of FPKM Matrix
 #'
-#' Generates a PCA plot based on FPKM values for all genes.
+#' This function performs PCA on a log2-transformed FPKM matrix.
 #'
-#' @param fpkm_data A data frame of FPKM values (genes as rows, samples as columns).
-#' @return A PCA plot.
+#' @param fpkm_data A numeric matrix or data frame with genes as rows and samples as columns.
+#'
+#' @return A ggplot2 PCA plot object.
 #' @export
-plot_pca_fpkm <- function(fpkm_data) {
-  # Log2 transform the FPKM data (adding 1 to avoid log(0))
-  log_fpkm <- log2(fpkm_data + 1)
+plot_pca_fpkm <- function(numeric_data) {
+  # Check if 'Gene' column exists
+  if("Gene" %in% colnames(numeric_data)) {
+    log_fpkm <- numeric_data %>% select(-Gene)  # Remove 'Gene' if it exists
+  } else {
+    log_fpkm <- numeric_data  # Skip the removal if 'Gene' is not in the data
+  }
 
-  # Transpose so samples are rows for PCA
-  pca_result <- prcomp(t(log_fpkm), scale. = TRUE)
-
-  # Prepare PCA data frame
-  pca_df <- data.frame(pca_result$x)
+  # Proceed with PCA as usual
+  pca_result <- stats::prcomp(t(log_fpkm), scale. = TRUE)
+  pca_df <- as.data.frame(pca_result$x)
   pca_df$Sample <- rownames(pca_df)
 
-  # Plot
-  ggplot(pca_df, aes(x = PC1, y = PC2, label = Sample)) +
-    geom_point(size = 4, color = "steelblue") +
-    geom_text(nudge_y = 1.5, size = 3) +
-    theme_minimal() +
-    labs(title = "PCA of FPKM Data", x = "PC1", y = "PC2")
+  ggplot2::ggplot(pca_df, ggplot2::aes(x = PC1, y = PC2, color = Sample)) +
+    ggplot2::geom_point(size = 3) +
+    ggplot2::labs(title = "PCA of FPKM Values", x = "Principal Component 1", y = "Principal Component 2") +
+    ggplot2::theme_minimal()
 }
