@@ -191,11 +191,36 @@ A boxplot can be helpful to visualize the distribution of gene expression across
 # Check the structure of filtered_data
 str(filtered_data)
 
-# Check the structure of numeric_data (just the sample columns)
-str(filtered_data[, sapply(filtered_data, is.numeric)])
+# Add a dummy 'Gene' column if missing
+if (!"Gene" %in% colnames(filtered_data)) {
+  filtered_data$Gene <- paste("Gene", 1:nrow(filtered_data), sep = "_")
+}
+
+# Set the 'Gene' column as row names and remove it from the data
+rownames(filtered_data) <- filtered_data$Gene
+filtered_data$Gene <- NULL
+
+# Extract numeric data (just the sample columns)
+numeric_data <- filtered_data[, sapply(filtered_data, is.numeric)]
+
+# Log-transform the data
+log_fpkm <- log2(numeric_data + 1)
+
+# Reshape the data into long format using melt from reshape2 package
+log_fpkm$Gene <- rownames(log_fpkm)  # Add Gene column for reshaping
+long_fpkm <- reshape2::melt(log_fpkm, id.vars = "Gene")
+colnames(long_fpkm) <- c("Gene", "Sample", "logFPKM")
+
+# Check the reshaped data
+print("Head of reshaped data:")
+head(long_fpkm)
 
 # Plot boxplot of FPKM values
-plot_fpkm_boxplot(filtered_data)
+ggplot(long_fpkm, aes(x = Sample, y = logFPKM)) +
+  geom_boxplot() +
+  theme_minimal() +
+  labs(title = "FPKM Expression Boxplot", y = "log2(FPKM + 1)") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
 ## Distribution of FPKM Values
