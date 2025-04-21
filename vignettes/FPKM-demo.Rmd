@@ -24,10 +24,12 @@ devtools::install_github("vsgosnell/FPKM")
 
 # Loading the Package
 ## Once installed, load the package:
+Also load ggplot2
 
 
 ```{r}
 library(FPKM)
+library(ggplot2)
 ```
 
 # Loading Data

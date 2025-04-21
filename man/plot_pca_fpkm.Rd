@@ -4,7 +4,7 @@
 \alias{plot_pca_fpkm}
 \title{PCA Plot of FPKM Matrix}
 \usage{
-plot_pca_fpkm(fpkm_data)
+plot_pca_fpkm(numeric_data)
 }
 \arguments{
 \item{fpkm_data}{A numeric matrix or data frame with genes as rows and samples as columns.}
