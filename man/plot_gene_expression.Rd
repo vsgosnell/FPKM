@@ -10,11 +10,9 @@ plot_gene_expression(fpkm_data, gene)
 \item{fpkm_data}{A data frame of FPKM values.}
 
 \item{gene}{The gene of interest.}
-
-\item{plot_type}{The type of plot ("bar" or "line").}
 }
 \value{
-A plot of the gene expression.
+A bar plot of the gene expression.
 }
 \description{
 Plots the expression of a specific gene across different samples.

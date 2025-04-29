@@ -4,9 +4,8 @@
 #'
 #' @param fpkm_data A data frame of FPKM values.
 #' @param gene The gene of interest.
-#' @param plot_type The type of plot ("bar" or "line").
 #'
-#' @return A plot of the gene expression.
+#' @return A bar plot of the gene expression.
 #' @export
 plot_gene_expression <- function(fpkm_data, gene) {
   if (!gene %in% rownames(fpkm_data)) {

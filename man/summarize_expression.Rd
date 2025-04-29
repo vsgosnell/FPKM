@@ -4,7 +4,7 @@
 \alias{summarize_expression}
 \title{Summarize Expression Data}
 \usage{
-summarize_expression(fpkm_data)
+summarize_expression(log_fpkm)
 }
 \arguments{
 \item{fpkm_data}{A data frame of FPKM values.}

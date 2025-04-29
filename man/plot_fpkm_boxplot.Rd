@@ -2,16 +2,16 @@
 % Please edit documentation in R/plot_fpkm_boxplot.R
 \name{plot_fpkm_boxplot}
 \alias{plot_fpkm_boxplot}
-\title{Plot FPKM Distribution Boxplot}
+\title{Plot FPKM Boxplot}
 \usage{
 plot_fpkm_boxplot(fpkm_data)
 }
 \arguments{
-\item{fpkm_data}{A data frame of FPKM values (genes as rows, samples as columns).}
+\item{fpkm_data}{A data frame or matrix of FPKM values (genes x samples).}
 }
 \value{
-A ggplot2 boxplot.
+A ggplot2 boxplot object.
 }
 \description{
-Generates a boxplot of FPKM values across samples.
+This function takes a wide-format FPKM matrix and plots the distribution per sample.
 }

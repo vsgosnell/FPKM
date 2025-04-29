@@ -13,5 +13,6 @@ read_rna_seq_data(file_path)
 A data frame containing the processed RNA-seq data.
 }
 \description{
-This function reads RNA-seq data from a file and processes it by renaming columns if necessary.
+This function reads RNA-seq data from a file, standardizes annotation columns,
+and preserves all sample columns without hardcoding.
 }

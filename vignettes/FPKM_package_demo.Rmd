@@ -1,0 +1,398 @@
+---
+title: "Analyzing RNA-seq Data with the FPKM Package"
+author: "Veronica Gosnell"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{FPKM Package Demo}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+# Overview
+
+The `FPKM` package provides utilities for processing and visualizing RNA-seq data using **FPKM** (**F**ragments **P**er **K**ilobase of transcript per **M**illion mapped reads) normalization.
+
+**FPKM** is a commonly used method to normalize RNA-seq data, enabling the comparison of $\underline{gene\space expression}$ levels between samples. It adjusts for both the *length* of the gene and the *total number of reads* in the sample, offering a way to account for **variations** in sequencing depth and gene length. This allows for more accurate comparison of expression levels across genes and samples in RNA-seq experiments.
+
+---
+
+# Introduction
+
+This vignette demonstrates how to use the `FPKM` package to analyze RNA-seq data. We will cover several common tasks, such as reading in RNA-seq data, filtering low-expression genes, normalizing for gene length and sequencing depth, and generating key visualizations such as heatmaps, boxplots, and Principle Component Analysis (PCA).
+
+---
+
+## Installation
+
+First, make sure you have the `FPKM` package installed. You can install it from GitHub with the following command:
+
+```{r installation, results = 'hide', message = FALSE}
+devtools::install_github("vsgosnell/FPKM")
+```
+
+---
+
+# Loading the Package
+## Once installed, load the package and required libraries for this tutorial:
+
+
+```{r}
+library(FPKM)
+library(ggplot2)
+```
+
+---
+
+# Loading Data
+The first step in RNA-seq analysis is to load your data. We will load the RNA-seq data from the `vehicle_drug_feature_counts.txt` file. The file contains read counts for multiple samples, including vehicle (*control*) and drug treatment conditions. 
+
+The `read_rna_seq_data()` function reads in the count matrix and handles any required preprocessing (e.g., removing header metadata).
+
+Download: [vehicle_drug_feature_counts.txt](https://github.com/vsgosnell/FPKM/blob/main/data/vehicle_drug_feature_counts.txt)
+
+
+```{r read RNAseq data, results = 'hide', message = FALSE}
+# Manually specify the absolute path
+vehicle_drug_data_path <- "/Users/veronicagosnell/Desktop/R/FPKM/inst/extdata/vehicle_drug_feature_counts.txt"
+
+# Then use the path to load data
+vehicle_drug_data <- read_rna_seq_data(vehicle_drug_data_path)
+
+colnames(vehicle_drug_data)[colnames(vehicle_drug_data) == "length"] <- "Length"
+
+# Manually set the sample columns 
+sample_columns <- c("vehicle_rep1.bam", "vehicle_rep2.bam", "drug_rep1.bam", "drug_rep2.bam")
+```
+
+### View the first few rows to confirm it loaded correctly
+
+```{r head RNAseq data, results = 'hide', message = FALSE}
+head(vehicle_drug_data)
+```
+
+
+### This dataset contains the following columns:
+
+- **GeneID**: The gene identifier
+
+- **Chr**: The chromosome
+
+- **Start**: The start position of the gene
+
+- **End**: The end position of the gene
+
+- **Strand**: The positive or negative strand of the gene
+
+- **Length**: The length of the gene
+
+- **vehicle_rep1, vehicle_rep2, drug_rep1, drug_rep2**: 
+    - The read counts for different replicates of the vehicle and drug treatments
+
+---
+
+---
+
+# Calculating FPKM Values
+
+Once the data is loaded, you can compute **FPKM values**. This method is used to normalize gene expression data in RNA-seq experiments by accounting for *sequencing depth* and *gene length*. 
+
+The `calculate_fpkm()` function calculates the **FPKM values** from *read counts* and *gene lengths*.
+
+
+```{r calculate FPKM, results = 'hide', message = FALSE}
+sample_columns <- grep("\\.bam$", colnames(vehicle_drug_data), value = TRUE)
+
+fpkm_values <- calculate_fpkm(vehicle_drug_data, sample_columns)
+```
+### Results:
+
+- This function returns a data frame containing the **FPKM values** for each gene across all samples. 
+
+- **FPKM** normalizes expression levels by both gene length (longer genes tend to have more reads) and library size (total read count per sample). This makes expression levels more **comparable** across genes and samples.
+
+---
+
+---
+
+# Filtering Low Expression Genes
+
+To improve the accuracy of downstream analysis, we can filter out genes with **low expression** levels. 
+
+The `filter_low_expression()` function allows us to filter genes based on a threshold **FPKM** value.
+
+```{r filter low expression, results = 'hide', message = FALSE}
+# Save gene IDs separately from vehicle_drug_data
+geneid_vector <- vehicle_drug_data$geneid
+
+# Select only numeric sample columns
+sample_columns <- fpkm_values[, sapply(fpkm_values, is.numeric)]
+
+# Set gene IDs as row names BEFORE filtering
+rownames(sample_columns) <- make.unique(as.character(geneid_vector))
+
+# Filter out low-expression genes (e.g., average FPKM < 1)
+filtered_data <- filter_low_expression(sample_columns, threshold = 1)
+```
+
+### Why filter?
+
+- Genes with consistently **low expression** can introduce *noise*.
+
+- Filtering improves downstream analyses like clustering, PCA, and differential expression.
+
+---
+
+---
+
+\newpage
+
+# Visualizing Gene Expression
+
+## Heatmap of Gene Expression
+
+We can create a heatmap to visualize the **gene expression patterns** of the most variable genes across the samples using the `plot_expression_heatmap()` function.
+
+
+#### **What this does:**
+
+1. **Compute variance** for each gene (row) across your samples
+
+2. **Order** genes by descending variance and pick the top `N`
+
+3. **Subset** your *filtered* FPKM matrix to those genes
+
+4. **Center & scale** each row so differences are on the same scale
+
+5. **Plot** with `pheatmap`, showing just those top `N` genes
+
+$\underline{You\space can\space adjust:}$  
+  
+  - `N` (e.g. 25, 50, 200)  
+
+  - `show_rownames = TRUE` if you want to see **gene IDs**  
+
+  - `scale = "row"` inside `pheatmap()` instead of *manually* scaling 
+
+
+```{r heatmap-top-variables, message=FALSE, warning=FALSE, fig.width=8, fig.height=10}
+# Plot heatmap of top 100 most variable genes
+plot_expression_heatmap(filtered_data, top_n = 100)
+```
+
+### Results:
+
+    - **Rows** = genes
+
+    - **Columns** = samples
+
+    - **Color** changes indicate relative *expression differences*
+
+- $\underline{Clustering}$ helps identify patterns of co-expression and sample similarity
+
+
+---
+
+---
+
+## Boxplot of FPKM Distribution
+
+A boxplot can be helpful to visualize the distribution of **gene expression** across samples.
+
+
+```{r FPKM Distribution Boxplot, fig.width=8, fig.height=6}
+# Check the structure of filtered_data
+str(filtered_data)
+
+plot_fpkm_boxplot(filtered_data)
+```
+
+### Results:
+
+- Boxplots show **median**, **quartiles**, and **outliers** of log-transformed `FPKM` values
+
+  - Helps assess sample distribution and variability
+
+- RNA-seq data commonly contains lots of genes with 0 or *near-zero* expression
+
+  - These low values create a long lower tail, and the few highly expressed genes pull the median and upper quartile upward
+
+  - So when you plot individual points (like geom_jitter()), they tend to bunch up at the **upper end** of the visible range (i.e., the *top* whisker)
+  
+  - This can be adjusted according to your needs
+
+---
+
+---
+
+
+## Distribution of FPKM Values
+
+To assess the **overall distribution** of expression levels, we can plot the distribution of `FPKM` values.
+
+```{r FPKM Distribution Bar Graph, fig.width=8, fig.height=6}
+# Convert to data frame if it's still a matrix
+filtered_data <- as.data.frame(filtered_data)
+
+# Add a column for average FPKM across all samples
+filtered_data$FPKM <- rowMeans(filtered_data[, sapply(filtered_data, is.numeric)])
+
+# Then plot distribution of FPKM values
+plot_fpkm_distribution(filtered_data$FPKM)
+```
+
+### Results:
+
+- Most genes have *low* expression (often log-normal distribution)
+
+- Useful for choosing **filtering thresholds** and detecting global shifts
+
+---
+
+---
+
+# Principal Component Analysis (PCA)
+
+To explore the overall variation in the data, we can perform **Principal Component Analysis (PCA)** on the `FPKM` values. 
+
+**PCA** is used to reduce *dimensionality* and visualize major **patterns** in gene expression data that capture the most important variation across samples. This enables visualization of groupings, patterns, and outliers in a simple 2D plot.
+
+
+## Quick PCA Visualization
+
+The `FPKM` package provides a convenient wrapper function, `plot_pca_fpkm()`, that performs **log-transformation**, **PCA**, and **plotting** in one step. 
+
+It displays the *first two* principal components, which together explain most of the variance in the data. 
+
+Below, shows both this quick-use function and a step-by-step breakdown of how **PCA** is performed on the `FPKM` dataset.
+
+
+```{r PCA simple, message=FALSE, warning=FALSE, fig.width=8, fig.height=6}
+# Use the wrapper function for a quick PCA plot
+plot_pca_fpkm(filtered_data)
+```
+
+### Results:
+
+- Can reveal batch effects, sample outliers, or treatment separation
+
+- Samples that cluster together have **similar expression profiles**
+
+  - If treated and untreated samples cluster separately along PC1 or PC2:
+
+    - This suggests that treatment strongly *influences* gene expression
+
+- If samples from the same group cluster tightly:
+
+  - Indicates *reproducibility* within conditions
+
+- Outliers or overlapping clusters might indicate **batch effects** or **subtle expression changes**
+
+---
+
+# PCA: Step-by-Step Breakdown
+
+While the `plot_pca_fpkm()` function provides a fast and convenient way to visualize **PCA** results, this section walks through the process step-by-step. This approach is useful for users who want to customize the analysis or better understand how **PCA** is computed and interpreted from their `FPKM` data.
+
+```{r PCA breakdown colored, message=FALSE, warning=FALSE, fig.width=8, fig.height=6}
+# Log-transform filtered data
+log_fpkm <- log2(filtered_data + 1)
+
+# Remove non-sample columns
+log_fpkm_clean <- log_fpkm[, grepl("vehicle|drug", colnames(log_fpkm), ignore.case = TRUE)]
+
+# Transpose for PCA (samples as rows, genes as columns)
+pca_input <- t(log_fpkm_clean)
+
+# Run PCA
+pca_result <- prcomp(pca_input, scale. = TRUE)
+
+# Calculate percentage of variance explained by PC1 and PC2
+pve <- round(100 * summary(pca_result)$importance[2, 1:2], 1)
+
+# Create PCA data frame for plotting
+pca_df <- as.data.frame(pca_result$x)
+pca_df$Sample <- rownames(pca_df)
+
+# Assign conditions based on sample names
+pca_df$Condition <- ifelse(grepl("vehicle", pca_df$Sample, ignore.case = TRUE), "Vehicle",
+                    ifelse(grepl("drug", pca_df$Sample, ignore.case = TRUE), "Drug", "Unknown"))
+
+# Plot PCA with color by condition
+ggplot(pca_df, aes(x = PC1, y = PC2, color = Condition, label = Sample)) +
+  geom_point(size = 4) +
+  geom_text(vjust = 1.5, size = 4) +
+  labs(title = "PCA of log2(FPKM + 1) Expression",
+       x = paste0("PC1 (", pve[1], "%)"),
+       y = paste0("PC2 (", pve[2], "%)")) +
+  scale_color_manual(values = c("Vehicle" = "#3498DB", "Drug" = "#E74C3C")) +
+  theme_minimal(base_size = 14)
+
+```
+
+### Results:
+
+    - Implements the full PCA pipeline inline
+    - Explains and displays PC1/PC2 variance
+
+- PC1 and PC2 capture the **most significant sources of variation** in the dataset
+
+- Samples clustering together on the PCA plot are more similar in expression profiles
+
+- This plot helps identify batch effects, outliers, or biological groupings
+
+### Customizing PCA plot:
+
+The plot can be modified in several ways depending on your needs:
+
+- Add **color** or **shape** by *condition* (i.e., treatment vs control) to visually distinguish biological groups
+
+- Change **scale. argument** to normalize variance across genes
+
+- Use **other Principle Components** (i.e., PC3, PC4, etc.) to analyze more subtle variation
+
+- Add **confidence ellipses** to show group dispersion using stat_ellipse()
+
+---
+
+---
+
+# Correlation Between Samples
+
+We can also check the correlation between samples using the `plot_sample_correlation()` function.
+
+```{r Correlation Heatmap, message=FALSE, warning=FALSE, fig.width=8, fig.height=6}
+# Drop FPKM column if present
+filtered_data_no_fpkm <- filtered_data[, !colnames(filtered_data) %in% "FPKM"]
+
+# Plot correlation between samples
+plot_sample_correlation(as.matrix(filtered_data_no_fpkm))
+```
+
+### Results:
+
+- Highly correlated samples should cluster *together*
+
+- Useful **quality control** step to confirm experimental replicates behave similarly
+
+---
+
+---
+
+
+# Conclusion
+
+This vignette demonstrated how to use the `FPKM` package for RNA-seq data analysis. We successfully:
+
+  - Loaded a dataset
+  - Calculated **FPKM values**
+  - Filtered low expression genes
+  - Visualized the data using:
+    - Heatmaps
+    - Boxplot
+    - PCA
+
+These steps form a robust pipeline for analyzing and interpreting RNA-seq experiments, and provide a solid foundation for further exploration of gene expression data. 
+
+For advanced usage or more information on the FPKM package, refer to the package documentation and explore additional helper functions.
+
+---

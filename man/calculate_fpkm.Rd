@@ -2,18 +2,18 @@
 % Please edit documentation in R/calculate_fpkm.R
 \name{calculate_fpkm}
 \alias{calculate_fpkm}
-\title{Calculate FPKM}
+\title{Calculate FPKM Using For Loop}
 \usage{
-calculate_fpkm(counts, lengths)
+calculate_fpkm(data, count_cols)
 }
 \arguments{
-\item{counts}{Numeric vector of read counts}
+\item{data}{A data.frame containing RNA-seq data with gene lengths and counts.}
 
-\item{lengths}{Numeric vector of gene lengths (in kilobases)}
+\item{count_cols}{A character vector specifying the column names that contain the raw count data.}
 }
 \value{
-Numeric vector of FPKM values
+A matrix of FPKM values with gene names as rownames and sample names as colnames.
 }
 \description{
-Calculate FPKM
+This function calculates FPKM values for each gene in each sample using a for loop.
 }

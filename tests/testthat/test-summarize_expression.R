@@ -1,5 +1,10 @@
 test_that("summarize_expression returns summary stats", {
-  df <- data.frame(S1 = 1:3, S2 = 4:6)
+  df <- data.frame(
+    Sample1 = rnorm(100),
+    Sample2 = rnorm(100)
+  )
+  rownames(df) <- paste0("Gene", 1:100)
+
   result <- summarize_expression(df)
-  expect_equal(colnames(result), c("mean", "median", "variance"))
+  expect_true(all(c("Gene", "Mean", "Variance") %in% colnames(result)))
 })

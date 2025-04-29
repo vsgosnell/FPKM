@@ -1,4 +1,4 @@
-# Program:featureCounts v1.6.0; Command:"featureCounts" "-T" "3" "-t" "gene" "-g" "ID" "-a" "../Reference_Data/PlasmoDB-41_Pfalciparum3D7.gff" "-o" "vehicle_drug_feature_counts.txt" "-p" "vehicle_rep1.bam" "vehicle_rep2.bam" "drug_rep1.bam" "drug_rep2.bam" 
+# Program:featureCounts v1.6.0; Command:"featureCounts" "-T" "3" "-t" "gene" "-g" "ID" "-a" "../Reference_Data/PlasmoDB-41_Pfalciparum3D7.gff" "-o" "vehicle_drug_feature_counts.txt" "-p" "vehicle_rep1.bam" "vehicle_rep2.bam" "drug_rep1.bam" "drug_rep2.bam"
 Geneid	Chr	Start	End	Strand	Length	vehicle_rep1.bam	vehicle_rep2.bam	drug_rep1.bam	drug_rep2.bam
 PF3D7_0621350	Pf3D7_06_v3	876679	877298	-	620	0	7	3	4
 PF3D7_1314600	Pf3D7_13_v3	624785	626011	+	1227	68	54	13	25

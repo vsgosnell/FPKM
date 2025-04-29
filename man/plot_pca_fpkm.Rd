@@ -7,11 +7,11 @@
 plot_pca_fpkm(numeric_data)
 }
 \arguments{
-\item{fpkm_data}{A numeric matrix or data frame with genes as rows and samples as columns.}
+\item{numeric_data}{A numeric matrix or data frame with genes as rows and samples as columns.}
 }
 \value{
 A ggplot2 PCA plot object.
 }
 \description{
-This function performs PCA on a log2-transformed FPKM matrix.
+This function performs PCA on a log2-transformed FPKM matrix, removing non-sample columns like "Gene" or "FPKM".
 }

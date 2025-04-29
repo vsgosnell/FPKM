@@ -4,16 +4,16 @@
 \alias{get_top_expressed_genes}
 \title{Get Top Expressed Genes}
 \usage{
-get_top_expressed_genes(log_fpkm, n = 50)
+get_top_expressed_genes(fpkm_data, top_n = 50)
 }
 \arguments{
-\item{fpkm_data}{A data frame of FPKM values.}
+\item{fpkm_data}{A data frame or matrix of (optionally log-transformed) FPKM values, where rows are genes and columns are samples.}
 
-\item{top_n}{The number of top expressed genes to return.}
+\item{top_n}{The number of top expressed genes to return (default is 50).}
 }
 \value{
-A data frame of the top expressed genes.
+A character vector of gene names corresponding to the top expressed genes.
 }
 \description{
-Retrieves the top N most highly expressed genes.
+Retrieves the top N most highly expressed genes based on average expression across samples.
 }

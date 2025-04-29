@@ -1,0 +1,357 @@
+---
+title: "FPKM Package Function Documentation"
+author: "Veronica Gosnell"
+date: "4/13/2025"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{FPKM Package Demo}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+# Introduction
+
+The **FPKM** package provides a collection of functions to process, normalize, and visualize RNA-seq expression data. It is designed to be lightweight, beginner-friendly, and suitable for exploratory analysis of transcriptomics data.
+
+# Function Documentation
+
+1.  `read_rna_seq_data(filepath)`
+
+Reads RNA-seq count data from a .tsv or .txt file
+
+## Arguments:
+
+-   **filepath**: A **character string**. Path to the input file containing RNA-seq count data
+
+## Returns:
+
+-   A **data frame** with gene identifiers, gene lengths, and raw counts per sample
+
+### Example:
+
+```{r}
+# Define the absolute path to the example dataset
+example_data_path <- "/Users/veronicagosnell/Desktop/R/FPKM/inst/extdata/example_data.tsv"
+
+# Read the dataset properly using your function
+data <- read_rna_seq_data(example_data_path)
+
+# convert to data frame
+data <- as.data.frame(data)
+
+# Select only the relevant columns (gene expression data)
+expression_data <- data[, c("vehicle_rep1.bam", "vehicle_rep2.bam", "drug_rep1.bam", "drug_rep2.bam")]
+
+# Display the first few rows of the data
+head(data)
+```
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+2.  `calculate_fpkm(counts, gene_lengths)`
+
+Computes **FPKM** (Fragments Per Kilobase of transcript per Million mapped reads) values from raw count data and gene lengths
+
+## Arguments:
+
+-   **counts**: A matrix or data frame of raw read counts (rows = genes, columns = samples)
+
+-   **gene_lengths**: A numeric vector of gene lengths corresponding to the rows in counts
+
+## Returns:
+
+-   A **data frame** of FPKM values with the same dimensions as counts
+
+### Example:
+
+```{r}
+# Detect sample columns (assuming sample names end with '.bam')
+sample_columns <- grep("\\.bam$", colnames(vehicle_drug_data), value = TRUE)
+
+fpkm_values <- calculate_fpkm(vehicle_drug_data, sample_columns)
+
+head(fpkm_values)
+```
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+3.  `filter_low_expression(fpkm_data, threshold = 1)`
+
+Filters out genes with average FPKM below a specified threshold
+
+## Arguments:
+
+-   **FPKM data** calculated from previous step
+
+-   **threshold**: A numeric value. Genes with mean FPKM below this threshold are removed
+
+## Returns:
+
+-   Filtered **data frame** or **matrix** of FPKM values
+
+### Example:
+
+```{r}
+fpkm_filtered <- filter_low_expression(fpkm_table, threshold = 1)
+```
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+4.  `log_transform_fpkm(fpkm_data)`
+
+Applies a log2 transformation to FPKM values to stablize variance
+
+## Arguments:
+
+-   fpkm_data: Requires **FPKM** filtered data as a **data frame** or **matrix**
+
+## Returns:
+
+-   A data frame or matrix of log2(FPKM + 1) values
+
+### Example:
+
+```{r}
+log_fpkm <- log_transform_fpkm(fpkm_filtered)
+```
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+5.  `summarize_expression(log_fpkm)`
+
+Calculates summary statistics (mean and variance) for each gene across samples
+
+## Arguments:
+
+-   log_fpkm: A **data frame** or **matrix** of log-transformed FPKM values
+
+## Returns:
+
+-   A data frame with mean and variance for each gene
+
+### Example:
+
+```{r}
+summary_stats <- summarize_expression(log_fpkm)
+print(summary_stats)
+```
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+# Visualization Functions
+
+1.  `plot_fpkm_boxplot(log_fpkm)`
+
+Creates a boxplot showing the distribution of log-transformed FPKM values per sample
+
+## Arguments:
+
+-   log_fpkm: A **data frame** or **matrix** of log-transformed values
+
+## Returns:
+
+-   A ggplot object representing the boxplot
+
+### Example:
+
+```{r}
+plot_fpkm_boxplot(log_fpkm)
+```
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+2.  `plot_fpkm_distribution(fpkm_vector)`
+
+Generates a density plot for a **vector** of FPKM values
+
+## Arguments:
+
+-   fpkm_vector: A **numeric vector** of FPKM values
+
+## Returns:
+
+-   A ggplot object showing the density distribution
+
+### Example:
+
+```{r}
+plot_fpkm_distribution(filtered_data$FPKM)
+```
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+3.  `plot_pca_fpkm(log_fpkm)`
+
+Performs Principal Component Analysis (PCA) on log-transformed FPKM data and plots the first two components
+
+## Arguments:
+
+-   log_fpkm: A **data frame** or **matrix** of log-transformed values
+
+## Returns:
+
+-   A ggplot object displaying the PCA (Principle Component Analysis) plot
+
+### Example:
+
+```{r}
+plot_pca_fpkm(log_fpkm)
+```
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+4.  `plot_sample_correlation(log_fpkm)`
+
+Plots a heatmap showing Pearson correlation between all pairs of samples
+
+## Arguments:
+
+-   log_fpkm: A **data frame** or **matrix** of log-transformed values
+
+## Returns:
+
+-   A heatmap plot object
+
+### Example:
+
+```{r}
+# Plot sample correlation using the transpose of log_fpkm
+plot_sample_correlation(t(log_fpkm))
+```
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+5.  `plot_expression_heatmap(fpkm_data, top_genes)`
+
+Draws a heatmap of the expression levels of specified genes across samples
+
+## Arguments:
+
+-   fpkm_data: A **data frame** or **matrix** of FPKM or log-FPKM values
+
+-   top_genes: A **character vector** of gene names to include in the heatmap
+
+## Returns:
+
+-   A heatmap plot object
+
+### Example:
+
+```{r}
+plot_expression_heatmap(log_fpkm, top_n = 100)
+```
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+6.  `plot_gene_expression(fpkm_data, gene)`
+
+Plots expression of a specific gene across samples
+
+## Arguments:
+
+-   fpkm_data: A **data frame** or **matrix** of FPKM or log-FPKM values
+
+-   gene: A **character string**. Name of the gene to plot
+
+## Returns:
+
+-   A ggplot object showing expression of the gene
+
+### Example:
+
+```{r}
+# Assuming fpkm_filtered already exists (after filtering)
+# and vehicle_drug_data still contains the full unfiltered data
+
+# Extract the gene IDs matching the filtered rows
+filtered_geneids <- vehicle_drug_data$geneid[as.numeric(rownames(fpkm_filtered))]
+
+# Make gene IDs unique (in case of duplicates)
+filtered_geneids_unique <- make.unique(as.character(filtered_geneids))
+
+# Set row names on the log-transformed data
+rownames(log_fpkm) <- filtered_geneids_unique
+
+plot_gene_expression(log_fpkm, gene = "PF3D7_0621350")
+```
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+# Additional Functions
+
+1.  `get_top_expressed_genes(fpkm_data, n = 50)`
+
+Returns the names of the top n most highly expressed genes by average FPKM
+
+## Arguments:
+
+-   fpkm_data: A **data frame** or **matrix** of FPKM or log-FPKM values
+
+-   n: **Integer**. Number of top genes to return
+
+## Returns:
+
+-   A character vector of gene names
+
+### Example:
+
+```{r}
+top_genes <- get_top_expressed_genes(log_fpkm, top_n = 50)
+
+head(top_genes)
+```
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+2.  `merge_fpkm_tables(list_of_tables)`
+
+Combines multiple FPKM data frames by row names
+
+## Arguments:
+
+-   list_of_tables: A **list** of FPKM **data frames** to merge
+
+## Returns:
+
+-   A single merged **data frame**
+
+### Example:
+
+```{r}
+# Create small FPKM tables with 'Gene' column
+fpkm_table1 <- log_fpkm[1:2, ]
+fpkm_table2 <- log_fpkm[3:4, ]
+
+# Move rownames into a column
+fpkm_table1$Gene <- rownames(fpkm_table1)
+fpkm_table2$Gene <- rownames(fpkm_table2)
+
+# Now merge safely
+merged <- merge(fpkm_table1, fpkm_table2, by = "Gene", all = TRUE)
+
+print(merged)
+```

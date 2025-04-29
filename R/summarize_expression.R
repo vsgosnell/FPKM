@@ -6,11 +6,19 @@
 #'
 #' @return A data frame with the summary statistics for each gene.
 #' @export
-summarize_expression <- function(fpkm_data) {
-  summary_stats <- data.frame(
-    mean = rowMeans(fpkm_data),
-    median = apply(fpkm_data, 1, median),
-    variance = apply(fpkm_data, 1, var)
+summarize_expression <- function(log_fpkm) {
+  # Check if the data is a data frame or matrix
+  if (!is.data.frame(log_fpkm) && !is.matrix(log_fpkm)) {
+    stop("log_fpkm must be a data frame or matrix")
+  }
+
+  # Calculate mean and variance for each gene
+  gene_stats <- data.frame(
+    Gene = rownames(log_fpkm),
+    Mean = rowMeans(log_fpkm),
+    Variance = apply(log_fpkm, 1, var)
   )
-  return(summary_stats)
+
+  # Return the data frame with summary stats
+  return(gene_stats)
 }

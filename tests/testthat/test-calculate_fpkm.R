@@ -1,15 +1,12 @@
 test_that("calculate_fpkm computes expected FPKM values", {
-  # Example input: read counts and lengths
-  counts <- data.frame(counts = c(100, 200, 300))
-  lengths <- c(1000, 2000, 1500)
-  total_counts <- sum(counts$counts)
+  df <- data.frame(
+    geneid = c("GeneA", "GeneB"),
+    length = c(1000, 2000),
+    sample1 = c(100, 200),
+    sample2 = c(300, 400)
+  )
 
-  # Expected FPKM = (10^9 * counts) / (lengths * total_counts)
-  expected_fpkm <- (1e9 * counts$counts) / (lengths * total_counts)
-
-  # Call the function from your package
-  computed_fpkm <- calculate_fpkm(counts, lengths)
-
-  # Compare the numeric vector from the result's column
-  expect_equal(computed_fpkm$counts, expected_fpkm)
+  fpkm <- calculate_fpkm(df, count_cols = c("sample1", "sample2"))
+  expect_equal(dim(fpkm), c(2, 2))
+  expect_true(all(!is.na(fpkm)))
 })

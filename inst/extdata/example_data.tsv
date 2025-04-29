@@ -1,0 +1,6 @@
+Geneid	Chr	Start	End	Strand	Length	vehicle_rep1.bam	vehicle_rep2.bam	drug_rep1.bam	drug_rep2.bam
+geneA	Pf3D7_01_v3	1000	1200	+	200	10	12	14	15
+geneB	Pf3D7_01_v3	1300	1500	-	250	20	22	24	26
+geneC	Pf3D7_02_v3	2000	2200	+	300	30	32	34	36
+geneD	Pf3D7_03_v3	3000	3200	-	350	40	42	44	46
+geneE	Pf3D7_04_v3	4000	4200	+	400	50	52	54	56

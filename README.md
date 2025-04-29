@@ -2,6 +2,8 @@
 
 ![R-CMD-check]([https://github.com/vsgosnell/FPKM])
 
+This package is released under the CC0 1.0 Universal (CC0 1.0) Public Domain Dedication.
+
 ## Overview
 
 **FPKM** is an R package designed to streamline the analysis of RNA-seq data using the **Fragments Per Kilobase of transcript per Million mapped reads (FPKM)** normalization method. It provides functions for calculating, transforming, visualizing, and exploring gene expression data, making it a user-friendly solution for both exploratory and publication-ready analyses.

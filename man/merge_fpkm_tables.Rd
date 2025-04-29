@@ -2,16 +2,16 @@
 % Please edit documentation in R/merge_fpkm_tables.R
 \name{merge_fpkm_tables}
 \alias{merge_fpkm_tables}
-\title{Merge Multiple FPKM Tables}
+\title{Merge FPKM Tables}
 \usage{
 merge_fpkm_tables(fpkm_list)
 }
 \arguments{
-\item{fpkm_list}{A list of data frames with FPKM values.}
+\item{fpkm_list}{A list of data frames of FPKM values to merge}
 }
 \value{
-A merged data frame.
+A merged data frame
 }
 \description{
-Merges multiple FPKM tables (e.g., replicates or conditions) into a single table.
+Merge FPKM Tables
 }

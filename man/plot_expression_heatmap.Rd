@@ -4,14 +4,16 @@
 \alias{plot_expression_heatmap}
 \title{Plot Expression Heatmap}
 \usage{
-plot_expression_heatmap(fpkm_data)
+plot_expression_heatmap(fpkm_data, top_n = 20)
 }
 \arguments{
-\item{fpkm_data}{A data frame or matrix of FPKM values (genes as rows, samples as columns).}
+\item{fpkm_data}{A data frame or matrix where rows represent genes and columns represent samples.}
+
+\item{top_n}{An integer specifying the number of top genes (by variance) to display (default 20).}
 }
 \value{
-A pheatmap object.
+A heatmap plot of the scaled expression values.
 }
 \description{
-Plot Expression Heatmap
+This function takes a matrix or data frame of FPKM values and visualizes a heatmap of the most variable genes.
 }

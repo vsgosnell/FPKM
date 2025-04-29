@@ -2,12 +2,12 @@ Package: FPKM
 Title: Calculate FPKM from RNA-seq Data
 Version: 0.0.0.9000
 Authors@R: person("Veronica Gosnell", email = "veronicagosnell@gmail.com", role = c("aut", "cre"))
-Description: An R package for RNA-seq data analysis, providing functions for 
-    FPKM calculation, transformation, normalization, visualization 
-    (boxplots, heatmaps, PCA), and exploration of gene expression data, 
-    with tools for filtering low expression genes and summarizing expression 
-    profiles.
-License: MIT + file LICENSE
+Description: This package is designed to analyze RNA-seq data. It provides functions for 
+    FPKM calculation, transformation, normalization, and visualization with
+    boxplots, heatmaps, and Principle Component Analysis (PCA). It also contains
+    functions for exploration of gene expression data, including tools for filtering 
+    low expression genes and summarizing expression profiles.
+License: CC0
 Depends: 
     R (>= 4.0)
 Imports: 
@@ -17,7 +17,13 @@ Imports:
     GenomicRanges,
     Biostrings,
     ggplot2,
-    magrittr
+    grDevices,
+    stats,
+    utils,
+    magrittr,
+    pheatmap,
+    RColorBrewer,
+    reshape2
 Suggests:
     testthat (>= 3.0.0),
     knitr,
@@ -27,3 +33,4 @@ LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Config/testthat/edition: 3
+VignetteBuilder: knitr
