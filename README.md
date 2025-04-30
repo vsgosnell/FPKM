@@ -12,16 +12,15 @@ This package is especially useful for processing raw read count data, normalizin
 
 ## Features
 
-- 📊 **Calculate FPKM** values from raw counts and gene lengths  
-- 🧹 **Filter** out lowly expressed genes  
-- 🔄 **Normalize** data using TPM  
+- **Calculate FPKM** values from raw counts and gene lengths  
+- **Filter** out lowly expressed genes   
 - 🔍 **Identify** top expressed genes  
-- 🔢 **Log-transform** expression matrices  
-- 📈 **Visualize** gene expression via boxplots, heatmaps, density plots, and PCA  
-- 🧬 **Plot expression** for specific genes of interest  
-- 🔗 **Merge** multiple FPKM tables across samples  
-- 🧪 **Read and summarize** raw RNA-seq data  
-- 🧬 **Explore correlations** across samples and expression profiles
+- **Log-transform** expression matrices  
+- **Visualize** gene expression via boxplots, heatmaps, and PCA  
+- **Plot expression** for top expressed genes based on a specified threshold
+- **Merge** multiple FPKM tables across samples  
+- **Summarize** raw RNA-seq data 
+- **Explore correlations** across samples and expression profiles
 
 ## Installation
 
@@ -42,9 +41,6 @@ gene_lengths <- c(GeneA = 1000, GeneB = 2000)
 
 # Calculate FPKM
 fpkm <- calculate_fpkm(counts, gene_lengths)
-
-# Normalize to TPM
-tpm <- normalize_counts_tpm(counts, gene_lengths)
 
 # Log-transform FPKM
 log_fpkm <- log_transform_fpkm(fpkm)
