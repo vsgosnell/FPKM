@@ -18,7 +18,7 @@ The `FPKM` package provides utilities for processing and visualizing RNA-seq dat
 
 # Introduction
 
-This vignette demonstrates how to use the `FPKM` package to analyze RNA-seq data. We will cover several common tasks, such as reading in RNA-seq data, filtering low-expression genes, normalizing for gene length and sequencing depth, and generating key visualizations such as heatmaps, boxplots, and Principal Component Analysis (PCA).
+This vignette demonstrates how to use the `FPKM` package to analyze RNA-seq data. We will cover several common tasks, such as filtering low-expression genes, normalizing for gene length and sequencing depth, and generating key visualizations such as heatmaps, boxplots, and Principal Component Analysis (PCA).
 
 ---
 
@@ -46,8 +46,6 @@ library(readr)
 # Loading Data
 
 The first step in RNA-seq analysis is to load your data. We will load the RNA-seq data from the `vehicle_drug_feature_counts.txt` file. The file contains read counts for multiple samples, including vehicle (*control*) and drug treatment conditions. 
-
-The `read_rna_seq_data()` function reads in the count matrix and handles any required preprocessing (e.g., removing header metadata).
 
 Download: [vehicle_drug_feature_counts.txt](https://github.com/vsgosnell/FPKM/blob/main/inst/extdata/vehicle_drug_feature_counts.txt)
 
