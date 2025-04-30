@@ -49,7 +49,7 @@ The first step in RNA-seq analysis is to load your data. We will load the RNA-se
 
 The `read_rna_seq_data()` function reads in the count matrix and handles any required preprocessing (e.g., removing header metadata).
 
-Download: [vehicle_drug_feature_counts.txt](https://github.com/vsgosnell/FPKM/blob/main/data/vehicle_drug_feature_counts.txt)
+Download: [vehicle_drug_feature_counts.txt](https://github.com/vsgosnell/FPKM/blob/main/inst/extdata/vehicle_drug_feature_counts.txt)
 
 ```{r read RNAseq data, results = 'hide', message = FALSE}
 # Load data from featureCounts output
