@@ -12,7 +12,7 @@ vignette: >
 
 The `FPKM` package provides utilities for processing and visualizing RNA-seq data using **FPKM** (**F**ragments **P**er **K**ilobase of transcript per **M**illion mapped reads) normalization.
 
-**FPKM** is a commonly used method to normalize RNA-seq data, enabling the comparison of $\underline{gene\space expression}$ levels between samples. It adjusts for both the *length* of the gene and the *total number of reads* in the sample, offering a way to account for **variations** in sequencing depth and gene length. This allows for more accurate comparison of expression levels across genes and samples in RNA-seq experiments.
+**FPKM** is a commonly used method to normalize RNA-seq data, enabling the comparison of $\underline{gene\space expression}$ levels between samples. It adjusts for both the *length* of the gene and the *total number of reads* in the sample, offering a way to account for **variations** in sequencing depth and gene length. This allows for more accurate comparison of expression levels across genes and samples in RNA-seq experiments. 
 
 ---
 
