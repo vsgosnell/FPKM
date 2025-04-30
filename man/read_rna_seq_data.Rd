@@ -4,15 +4,14 @@
 \alias{read_rna_seq_data}
 \title{Read RNA-seq Data}
 \usage{
-read_rna_seq_data(file_path)
+read_rna_seq_data(filepath)
 }
 \arguments{
-\item{file_path}{A string representing the path to the RNA-seq data file.}
+\item{filepath}{Path to the RNA-seq counts file (.tsv or .txt)}
 }
 \value{
-A data frame containing the processed RNA-seq data.
+A data frame containing gene identifiers, lengths, and sample counts
 }
 \description{
-This function reads RNA-seq data from a file, standardizes annotation columns,
-and preserves all sample columns without hardcoding.
+Reads an RNA-seq count file, handles headers, ensures correct formatting.
 }

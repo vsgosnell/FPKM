@@ -7,13 +7,13 @@
 filter_low_expression(fpkm_data, threshold = 1)
 }
 \arguments{
-\item{fpkm_data}{A data frame of FPKM values.}
+\item{fpkm_data}{A data frame or matrix of FPKM values (genes x samples)}
 
-\item{threshold}{The minimum average FPKM value to retain a gene.}
+\item{threshold}{A numeric value; genes with mean FPKM below this will be removed}
 }
 \value{
-A data frame of FPKM values for genes with average expression above the threshold.
+Filtered FPKM data with all original sample columns retained
 }
 \description{
-Filters out genes that have low expression across all samples.
+Filters out genes (rows) with mean FPKM below a specified threshold.
 }

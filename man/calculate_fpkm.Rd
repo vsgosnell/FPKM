@@ -2,18 +2,18 @@
 % Please edit documentation in R/calculate_fpkm.R
 \name{calculate_fpkm}
 \alias{calculate_fpkm}
-\title{Calculate FPKM Using For Loop}
+\title{Calculate FPKM}
 \usage{
-calculate_fpkm(data, count_cols)
+calculate_fpkm(data, count_cols = NULL)
 }
 \arguments{
-\item{data}{A data.frame containing RNA-seq data with gene lengths and counts.}
+\item{data}{A data frame containing counts and a "Length" column (case-insensitive)}
 
-\item{count_cols}{A character vector specifying the column names that contain the raw count data.}
+\item{count_cols}{A character vector of column names representing sample count data}
 }
 \value{
-A matrix of FPKM values with gene names as rownames and sample names as colnames.
+A data frame of FPKM values
 }
 \description{
-This function calculates FPKM values for each gene in each sample using a for loop.
+Computes Fragments Per Kilobase of transcript per Million mapped reads.
 }

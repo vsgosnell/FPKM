@@ -1,14 +1,13 @@
 #' Filter Low Expression Genes
 #'
-#' Filters out genes that have low expression across all samples.
+#' Filters out genes (rows) with mean FPKM below a specified threshold.
 #'
-#' @param fpkm_data A data frame of FPKM values.
-#' @param threshold The minimum average FPKM value to retain a gene.
+#' @param fpkm_data A data frame or matrix of FPKM values (genes x samples)
+#' @param threshold A numeric value; genes with mean FPKM below this will be removed
 #'
-#' @return A data frame of FPKM values for genes with average expression above the threshold.
+#' @return Filtered FPKM data with all original sample columns retained
 #' @export
 filter_low_expression <- function(fpkm_data, threshold = 1) {
-  avg_fpkm <- rowMeans(fpkm_data)
-  filtered_data <- fpkm_data[avg_fpkm >= threshold, ]
-  return(filtered_data)
+  gene_means <- rowMeans(fpkm_data, na.rm = TRUE)
+  fpkm_data[gene_means >= threshold, , drop = FALSE]
 }

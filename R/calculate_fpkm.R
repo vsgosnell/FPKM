@@ -1,36 +1,56 @@
-#' Calculate FPKM Using For Loop
+#' Calculate FPKM
 #'
-#' This function calculates FPKM values for each gene in each sample using a for loop.
+#' Computes Fragments Per Kilobase of transcript per Million mapped reads.
 #'
-#' @param data A data.frame containing RNA-seq data with gene lengths and counts.
-#' @param count_cols A character vector specifying the column names that contain the raw count data.
+#' @param data A data frame containing counts and a "Length" column (case-insensitive)
+#' @param count_cols A character vector of column names representing sample count data
 #'
-#' @return A matrix of FPKM values with gene names as rownames and sample names as colnames.
+#' @return A data frame of FPKM values
 #' @export
-calculate_fpkm <- function(data, count_cols) {
-  # Extract counts for each sample
-  counts <- data[, count_cols]
-
-  # Extract the Length column
-  lengths <- data$length
-
-  # Ensure lengths are in the correct format
-  if(length(lengths) != nrow(counts)) {
-    stop("Mismatch between the number of genes (rows) and the length data.")
+calculate_fpkm <- function(data, count_cols = NULL) {
+  # Auto-detect count columns if not provided
+  if (is.null(count_cols)) {
+    count_cols <- setdiff(colnames(data), c("Geneid", "geneid", "Chr", "chr",
+                                            "Start", "start", "End", "end",
+                                            "Strand", "strand", "Length", "length"))
   }
 
-  # Convert lengths to kilobases
-  lengths_kb <- lengths / 1000
+  # Ensure count columns are numeric
+  counts <- data[, count_cols, drop = FALSE]
+  if (!all(sapply(counts, is.numeric))) {
+    stop("All count columns must be numeric.")
+  }
 
-  # Sum of counts for each sample
-  total_counts_per_sample <- colSums(counts)
+  # Find the Length column safely
+  if ("Length" %in% colnames(data)) {
+    gene_lengths <- data$Length
+  } else if ("length" %in% colnames(data)) {
+    gene_lengths <- data$length
+  } else {
+    stop("No Length or length column found in data.")
+  }
 
-  # FPKM calculation
-  fpkm <- sweep(counts, 2, total_counts_per_sample / 1e6, FUN = "/")
-  fpkm <- sweep(fpkm, 1, lengths_kb, FUN = "/")
+  # ---- New: Handle mismatches automatically ----
+  if (length(gene_lengths) != nrow(counts)) {
+    min_length <- min(length(gene_lengths), nrow(counts))
+    counts <- counts[seq_len(min_length), , drop = FALSE]
+    gene_lengths <- gene_lengths[seq_len(min_length)]
+  }
+  # -----------------------------------------------
 
-  # Preserve gene names if available
-  rownames(fpkm) <- data$GeneID
+  # Calculate library sizes
+  library_sizes_millions <- colSums(counts) / 1e6
 
-  return(fpkm)
+  # Calculate gene lengths in kilobases
+  gene_lengths_kb <- gene_lengths / 1000
+
+  # Calculate FPKM
+  fpkm_matrix <- sweep(counts, 2, library_sizes_millions, "/")
+  fpkm_matrix <- sweep(fpkm_matrix, 1, gene_lengths_kb, "/")
+
+  # Return as data frame
+  fpkm_df <- as.data.frame(fpkm_matrix)
+  rownames(fpkm_df) <- NULL
+
+  return(fpkm_df)
 }
