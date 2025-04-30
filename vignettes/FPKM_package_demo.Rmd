@@ -16,7 +16,7 @@ The `FPKM` package provides utilities for processing and visualizing RNA-seq dat
 
 ---
 
-# Introduction
+# Introduction 
 
 This vignette demonstrates how to use the `FPKM` package to analyze RNA-seq data. We will cover several common tasks, such as filtering low-expression genes, normalizing for gene length and sequencing depth, and generating key visualizations such as heatmaps, boxplots, and Principal Component Analysis (PCA).
 
